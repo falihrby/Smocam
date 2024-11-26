@@ -1,0 +1,40 @@
+.input-field {
+    margin: 10px 0;
+    width: 100%;
+}
+
+.input-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+    color: #0C2633;
+}
+
+.input-wrapper {
+    position: relative; 
+    width: 100%;
+}
+
+.input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 40px; 
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    cursor: pointer; 
+    fill: var(--icon-color, #000);
+}
+
+
