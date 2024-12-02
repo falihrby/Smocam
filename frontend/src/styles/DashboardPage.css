@@ -1,0 +1,117 @@
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard-sidebar {
+  width: 250px;
+  background-color: #354052;
+  color: white;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f1f1f1;
+  overflow-y: auto;
+}
+
+.dashboard-row {
+  margin-bottom: 1rem;
+}
+
+.dashboard-divider {
+  border: 0;
+  height: 1px;
+  background-color: #ddd;
+  margin: 1rem 0;
+}
+
+.dashboard-row.two-columns {
+  display: flex;
+  gap: 1rem;
+}
+
+.dashboard-column {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-column h2 {
+  margin-top: 0;
+}
+
+.left-column {
+  flex: 2; /* Takes 2/3 of the space */
+}
+
+.right-column {
+  flex: 1; /* Takes 1/3 of the space */
+}
+
+/* Card Row Styling */
+.card-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.dashboard-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Left Column with Icon */
+.card-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 60px; /* Fixed width for the icon box */
+}
+
+.icon-box {
+  width: 50px;
+  height: 50px;
+  background-color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.card-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 1rem;
+}
+
+.card-number {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #343a40;
+}
+
+.card-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
