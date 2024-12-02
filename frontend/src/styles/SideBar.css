@@ -1,0 +1,156 @@
+/* Sidebar container */
+.sidebar {
+  width: 210px;
+  background: #ffffff;
+  color: #b1b1b1;
+  margin-left: -250px; /* Hidden by default */
+  padding: 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.is-open {
+  margin-left: 0;
+}
+
+.sidebar-header {
+  background: #ffffff;
+  text-align: center;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.sidebar-logo {
+  max-width: 150px;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+
+.sidebar-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #171717;
+  margin: 0.5rem 0 0;
+}
+
+/* Navigation list */
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  margin-bottom: 1rem;
+}
+
+/* Links styling */
+.nav-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #b1b1b1;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #007bff;
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.nav-link.active {
+  color: #007bff;
+  background: rgba(0, 123, 255, 0.2);
+}
+
+.nav-icon {
+  width: 25px;
+  height: 25px;
+  fill: currentColor;
+  transition: color 0.3s ease;
+}
+
+.nav-caret {
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  fill: #007bff; 
+  stroke: #007bff; 
+  stroke-width: 2px; 
+  transition: all 0.3s ease;
+}
+
+.nav-caret:hover {
+  fill: #0056b3; /* Darker color on hover */
+}
+
+/* Submenu */
+.submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 1.5rem; /* Indented submenu */
+}
+
+.submenu-item {
+  margin-bottom: 0.5rem;
+}
+
+.submenu-button {
+  background: none;
+  border: none;
+  text-decoration: none;
+  color: #b1b1b1;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.submenu-button:hover {
+  color: #007bff;
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.submenu-button.active {
+  color: #007bff;
+  background: rgba(0, 123, 255, 0.2);
+}
+
+.submenu-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor; /* Ensures SVG icons inherit color */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .nav-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-logo {
+    max-width: 120px;
+  }
+
+  .nav-link {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}

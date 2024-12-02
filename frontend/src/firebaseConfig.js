@@ -1,14 +1,20 @@
+// Import necessary Firebase modules
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 
+// Firebase configuration object
 const firebaseConfig = {
-    apiKey: "your-api-key",
-    authDomain: "your-app.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-app.appspot.com",
-    messagingSenderId: "your-messaging-sender-id",
-    appId: "your-app-id",
+    apiKey: "AIzaSyDQeAL4fCTgjOipAoppMHS8v4ukJX7bvUM",
+    authDomain: "smocam-3b5d2.firebaseapp.com",
+    projectId: "smocam-3b5d2",
+    storageBucket: "smocam-3b5d2.firebasestorage.app",
+    messagingSenderId: "31978483315",
+    appId: "1:31978483315:web:e0790792b052ff094d8406",
+    measurementId: "G-KXKB1Z3YPB"
 };
 
+// Initialize Firebase app
 const app = initializeApp(firebaseConfig);
 
-export default app;
+// Export Firebase Authentication
+export const auth = getAuth(app);
