@@ -1,27 +1,29 @@
-/* Sidebar container */
+/* Sidebar Container */
 .sidebar {
   width: 210px;
   background: #ffffff;
   color: #b1b1b1;
   margin-left: -250px; /* Hidden by default */
   padding: 1rem;
-  transition: all 0.3s ease;
   position: relative;
-  height: 100vh;
-  overflow-y: auto;
+  height: auto;
+  overflow: auto;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .sidebar.is-open {
   margin-left: 0;
 }
 
+/* Sidebar Header */
 .sidebar-header {
   background: #ffffff;
   text-align: center;
-  padding: 1rem 0;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #eaeaea;
+  padding: 0 1rem;
+  position: sticky; /* Fixed at the top */
+  top: 0;
+  z-index: 10; /* Ensure it stays above the scrollable content */
 }
 
 .sidebar-logo {
@@ -38,7 +40,7 @@
   margin: 0.5rem 0 0;
 }
 
-/* Navigation list */
+/* Navigation List */
 .nav-list {
   list-style: none;
   padding: 0;
@@ -49,14 +51,14 @@
   margin-bottom: 1rem;
 }
 
-/* Links styling */
+/* Links Styling */
 .nav-link {
   display: flex;
   align-items: center;
+  gap: 1rem;
   text-decoration: none;
   color: #b1b1b1;
   padding: 0.5rem 1rem;
-  gap: 1rem;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
@@ -82,9 +84,9 @@
   margin-left: auto;
   width: 20px;
   height: 20px;
-  fill: #007bff; 
-  stroke: #007bff; 
-  stroke-width: 2px; 
+  fill: #007bff;
+  stroke: #007bff;
+  stroke-width: 2px;
   transition: all 0.3s ease;
 }
 
@@ -104,15 +106,15 @@
 }
 
 .submenu-button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   background: none;
   border: none;
   text-decoration: none;
   color: #b1b1b1;
   padding: 0.5rem 1rem;
   text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.3s ease;
@@ -132,6 +134,36 @@
   width: 20px;
   height: 20px;
   fill: currentColor; /* Ensures SVG icons inherit color */
+}
+
+/* Detected Header */
+.detected-header {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.detected-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.detected-header .chevron {
+  margin-left: 0.5rem;
+  font-size: 1.25rem;
+  color: #6c757d;
+}
+
+/* Detection Items */
+.detection-item {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: start;
+  margin-top: 1rem;
+  width: 100%;
 }
 
 /* Responsive Design */
