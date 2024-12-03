@@ -6,7 +6,7 @@ import "../styles/DashboardPage.css";
 const DashboardPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedArea, setSelectedArea] = useState("Semua");
-  const [selectedBox, setSelectedBox] = useState("");
+  const [selectedBox, setSelectedBox] = useState("Label for Box 1");
   const areaButtonsRef = useRef(null);
   const rectangleRef = useRef(null);
 

@@ -75,6 +75,7 @@
   background-color: #fff;
   border-radius: 8px;
   height: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Card Styles */
@@ -140,7 +141,7 @@
 .area-buttons {
   display: flex;
   gap: 1rem;
-  padding-bottom: 2rem;
+  padding-bottom: 1.25rem;
   overflow: hidden;
   white-space: nowrap;
   max-width: calc(5 * (9rem + 0.5rem));
