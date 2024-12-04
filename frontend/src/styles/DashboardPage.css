@@ -182,7 +182,7 @@
 .rectangle-label {
   font-size: 16px;
   font-weight: bold;
-  color: #333;
+  color: #343a40;
   padding-bottom: 0.5rem;
   width: fit-content;
   cursor: default;
@@ -247,7 +247,7 @@
 
 .detected-message {
   font-weight: bold;
-  color: #007BFF;
+  color: #007bff;
 }
 
 .detected-photo {
@@ -289,15 +289,15 @@
   flex-direction: column;
   align-items: center;
   width: 213px;
-  cursor: pointer; 
+  cursor: pointer;
 }
 
 .scroll-box-wrapper:hover {
-  opacity: 0.9; 
+  opacity: 0.9;
 }
 
 .scroll-box-wrapper:hover .scroll-box {
-  transform: scale(1.05); 
+  transform: scale(1.05);
   transition: transform 0.2s ease;
 }
 
@@ -331,5 +331,5 @@
 
 .scroll-box-wrapper:hover .scroll-box-label {
   font-weight: bold;
-  color: #007BFF;
+  color: #007bff;
 }
