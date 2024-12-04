@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import Dropdown from "../components/Dropdown";
 import "../styles/ReportPage.css";
 
 const ReportPage = () => {
@@ -8,30 +9,30 @@ const ReportPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedArea, setSelectedArea] = useState("All");
   const [selectedCCTV, setSelectedCCTV] = useState("All");
-  const [startDate, setStartDate] = useState(""); // Start date for filter
-  const [endDate, setEndDate] = useState(""); // End date for filter
-  const rowsPerPage = 5;
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const rowsPerPage = 10;
 
   const toggleSidebar = () => setSidebarOpen((prevState) => !prevState);
 
   const tableData = [
-    { no: 1, dateTime: "2024-12-01 14:32:06", description: "Detected smoking in Zone A", status: "Open", area: "Zone A", cctv: "CCTV-1" },
-    { no: 2, dateTime: "2024-12-02 15:12:30", description: "Detected smoking in Zone B", status: "Resolved", area: "Zone B", cctv: "CCTV-2" },
-    { no: 3, dateTime: "2024-12-02 15:12:30", description: "Detected smoking in Zone B", status: "Resolved", area: "Zone B", cctv: "CCTV-2" },
+    { no: 1, dateTime: "2024-12-01 14:32:06", description: "Telah deteksi merokok", status: "Ada Mahasiswa", area: "Zone A", cctv: "CCTV-1" },
+    { no: 2, dateTime: "2024-12-02 15:12:30", description: "Telah deteksi merokok", status: "Tidak Ada Mahasiswa", area: "Zone B", cctv: "CCTV-2" },
+    { no: 3, dateTime: "2024-12-03 11:45:00", description: "Telah deteksi merokok", status: "Ada Mahasiswa", area: "Zone A", cctv: "CCTV-2" },
   ];
 
   // Convert a date string to a Date object
   const parseDate = (dateString) => new Date(dateString.split(" ")[0]);
 
-  // Apply Area, CCTV, and Date filters
-  const filteredData = tableData.filter(row => {
-    const areaMatches = selectedArea === "All" || row.area === selectedArea;
-    const cctvMatches = selectedCCTV === "All" || row.cctv === selectedCCTV;
+  // Apply filters
+  const filteredData = tableData.filter((row) => {
+    const areaMatches = selectedArea === "Semua" || row.area === selectedArea;
+    const cctvMatches = selectedCCTV === "Semua" || row.cctv === selectedCCTV;
     const rowDate = parseDate(row.dateTime);
     const startMatches = startDate === "" || rowDate >= new Date(startDate);
     const endMatches = endDate === "" || rowDate <= new Date(endDate);
     return areaMatches && cctvMatches && startMatches && endMatches;
-  }).reverse(); 
+  }).reverse();
 
   // Pagination logic
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -50,16 +51,6 @@ const ReportPage = () => {
     setCurrentPage(pageNumber);
   };
 
-  const handleAreaChange = (e) => {
-    setSelectedArea(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleCCTVChange = (e) => {
-    setSelectedCCTV(e.target.value);
-    setCurrentPage(1);
-  };
-
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
     setCurrentPage(1);
@@ -71,7 +62,7 @@ const ReportPage = () => {
   };
 
   const printReport = () => {
-    window.print(); // Opens the browser's print dialog
+    window.print();
   };
 
   return (
@@ -95,28 +86,18 @@ const ReportPage = () => {
             </div>
             <hr className="card-divider" />
             <div className="filter-container">
-              <div className="dropdown-wrapper">
-                <select
-                  className="filter-dropdown"
-                  value={selectedArea}
-                  onChange={handleAreaChange}
-                >
-                  <option value="All">Semua Area</option>
-                  <option value="Zone A">Zone A</option>
-                  <option value="Zone B">Zone B</option>
-                </select>
-              </div>
-              <div className="dropdown-wrapper">
-                <select
-                  className="filter-dropdown"
-                  value={selectedCCTV}
-                  onChange={handleCCTVChange}
-                >
-                  <option value="All">Semua CCTV</option>
-                  <option value="CCTV-1">CCTV-1</option>
-                  <option value="CCTV-2">CCTV-2</option>
-                </select>
-              </div>
+              <Dropdown
+                label="Area"
+                options={["Semua", "Zone A", "Zone B"]}
+                selectedValue={selectedArea}
+                onChange={setSelectedArea}
+              />
+              <Dropdown
+                label="CCTV"
+                options={["Semua", "CCTV-1", "CCTV-2"]}
+                selectedValue={selectedCCTV}
+                onChange={setSelectedCCTV}
+              />
               <div className="date-filter">
                 <input
                   type="date"
