@@ -1,0 +1,132 @@
+/* Layout and Page Content */
+.layout-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 100vh;
+  overflow: auto;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-color: #f1f1f1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.page-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+  background-color: #d5d5d5;
+  border-radius: 4px;
+}
+
+.page-content::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Back Button */
+.back-button {
+  display: flex;
+  align-items: center;
+  background-color: #343a40;
+  color: white;
+  font-size: 1rem;
+  padding: 0.5rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.back-button:hover {
+  background-color: #4b525a;
+}
+
+.back-button svg {
+  margin-right: 0.5rem;
+  width: 24px;
+  height: 24px;
+}
+
+/* Detail Card */
+.detail-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+}
+
+.detail-card h1 {
+  font-size: 1.25rem;
+  color: #343a40;
+  margin-bottom: 1rem;
+}
+
+.card-divider {
+  border: 0;
+  height: 1px;
+  background-color: #ddd;
+  margin: 1rem 0;
+}
+
+/* Align items in a grid */
+.detail-item {
+  display: grid;
+  grid-template-columns: 150px 10px 1fr; /* Label, colon, and input */
+  align-items: center; /* Vertically center the content */
+  margin-bottom: 1rem;
+}
+
+/* Styling for the label (left column) */
+.detail-label {
+  font-size: 0.875rem;
+  color: #343a40;
+  text-align: left;
+}
+
+/* Styling for the colon (middle column) */
+.detail-colon {
+  text-align: center;
+  color: #343a40;
+  padding-right: 1rem;
+}
+
+/* Styling for the input field (right column) */
+.detail-input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  color: #666;
+  font-size: 0.875rem;
+  pointer-events: none; /* Disable interaction */
+}
+
+/* Error Message */
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+}
+
+.error-message h2 {
+  color: #343a40;
+  margin-bottom: 1rem;
+}
+
+.error-message .back-button {
+  margin-top: 1rem;
+}

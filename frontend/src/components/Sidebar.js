@@ -47,8 +47,8 @@ const Sidebar = ({ isOpen }) => {
           {/* Offender Data */}
           <li className="nav-item">
             <a
-              href="/offender"
-              className={classNames("nav-link", { active: isActive("/offender") })}
+              href="/violator-data"
+              className={classNames("nav-link", { active: isActive("/violator-data") })}
             >
               <OffenderIcon />
               Data Pelanggar
