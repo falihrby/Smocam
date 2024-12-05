@@ -4,6 +4,8 @@ import DashboardPage from "./pages/DashboardPage";
 import ReportPage from "./pages/ReportPage";
 import RekamanPage from "./pages/RekamanPage";
 import PrintEvidencePage from "./pages/PrintEvidencePage";
+import ViolatorDataPage from "./pages/ViolatorDataPage";
+import DetailViolatorPage from "./pages/DetailViolatorPage";
 import AccountPage from "./pages/AccountPage";
 import LoginPage from "./pages/LoginPage";
 import "./App.css";
@@ -19,6 +21,8 @@ function App() {
           <Route path="/report" element={<ReportPage />} />
           <Route path="/rekaman" element={<RekamanPage />} />
           <Route path="/print-bukti" element={<PrintEvidencePage />} />
+          <Route path="/violator-data" element={<ViolatorDataPage />} />
+          <Route path="/details" element={<DetailViolatorPage />} />
           <Route path="/account" element={<AccountPage />} />
         </Routes>
       </div>
