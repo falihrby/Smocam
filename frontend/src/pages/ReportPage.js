@@ -1,14 +1,16 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Dropdown from "../components/Dropdown";
 import "../styles/ReportPage.css";
 
 const ReportPage = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedArea, setSelectedArea] = useState("All");
-  const [selectedCCTV, setSelectedCCTV] = useState("All");
+  const [selectedArea, setSelectedArea] = useState("Semua");
+  const [selectedCCTV, setSelectedCCTV] = useState("Semua");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const rowsPerPage = 10;
@@ -81,7 +83,7 @@ const ReportPage = () => {
                     d="M17 7.846H7v-3.23h10zm.616 4.27q.425 0 .712-.288t.288-.712t-.288-.713t-.712-.288t-.713.288t-.287.713t.287.712t.713.288M16 19v-4.538H8V19zm1 1H7v-4H3.577v-5.384q0-.85.577-1.425t1.423-.576h12.846q.85 0 1.425.576t.575 1.424V16H17z"
                   />
                 </svg>
-                Print
+                Cetak
               </button>
             </div>
             <hr className="card-divider" />
@@ -141,8 +143,8 @@ const ReportPage = () => {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button className="action-button">Print Bukti</button>
-                        <button className="action-button">Rekaman</button>
+                        <button className="action-button" onClick={() => navigate("/print-bukti")}>Cetak Bukti</button>
+                        <button className="action-button" onClick={() => navigate("/rekaman")}>Rekaman</button>
                       </div>
                     </td>
                   </tr>
