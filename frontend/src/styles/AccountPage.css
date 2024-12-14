@@ -1,23 +1,92 @@
-.account-container {
-  display: flex;
-  height: 100vh;
-}
-
-.account-sidebar {
-  width: 250px;
-  background-color: #354052;
+/* Buttons */
+.action-button-accounts {
+  background-color: #343a40;
   color: white;
-  transition: width 0.3s ease;
+  border: none;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 30px; /* Set a fixed width */
+  height: 30px; /* Make height equal to width for square buttons */
+  display: flex; /* Center content (SVG) */
+  align-items: center; /* Vertically center */
+  justify-content: center; /* Horizontally center */
+  padding: 0; /* Remove padding */
 }
 
-.account-main {
-  flex: 1;
+.action-button-accounts:hover {
+  background-color: #4b525a;
+}
+
+.action-buttons-accounts {
   display: flex;
-  flex-direction: column;
+  gap: 0.3rem;
+  justify-content: center;
+  align-items: center;
 }
 
-.account-content {
-  flex: 1;
-  padding: 2rem;
-  background-color: #f1f1f1;
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.pagination-button {
+  padding: 0.5rem 0.75rem;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination-button:hover {
+  background-color: #343a40;
+  color: white;
+}
+
+.pagination-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  background-color: #343a40;
+  color: white;
+  border: none;
+  font-size: 14px;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  gap: 0.5rem;
+}
+
+.add-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.add-button:hover {
+  background-color: #4b525a;
+}
+
+.custom-table th {
+  text-align: left;
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.custom-table td {
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.custom-table tr:hover {
+  background-color: #f9f9f9;
 }

@@ -103,7 +103,7 @@ const DashboardPage = () => {
     "Area 5", "Area 6", "Area 7", "Area 8", "Area 9", "Area 10"
   ];
 
-  const detectedInfoData = new Array(5).fill({
+  const detectedInfoData = new Array(6).fill({
     date: "02/02/2023 10:04:06",
     message: "Terdeteksi merokok",
     student: "Ada Mahasiswa",

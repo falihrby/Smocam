@@ -1,0 +1,90 @@
+/* Overlay */
+.delete-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px); /* Add blur effect for a modern feel */
+}
+
+/* Modal Content */
+.delete-confirmation-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  width: 350px; /* Slightly larger modal */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+  animation: slide-down 0.3s ease-out; /* Smooth entry animation */
+}
+
+.delete-confirmation-content h3 {
+  margin: 0 0 12px;
+  font-size: 1.5rem;
+  color: #343a40; /* Darker text for title */
+  font-weight: bold;
+}
+
+.delete-confirmation-content p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: #555; /* Subtle text color */
+  line-height: 1.5;
+}
+
+/* Button Actions */
+.delete-confirmation-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.delete-confirmation-button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for buttons */
+}
+
+/* Confirm Button */
+.delete-confirm-button {
+  background-color: #d9534f; /* Red for danger */
+  color: white;
+}
+
+.delete-confirm-button:hover {
+  background-color: #c9302c; /* Darker red on hover */
+  transform: scale(1.05);
+}
+
+/* Cancel Button */
+.delete-cancel-button {
+  background-color: #f7f7f7; /* Light gray for cancel */
+  color: #6c757d; /* Subtle gray text */
+}
+
+.delete-cancel-button:hover {
+  background-color: #e2e6ea; /* Slightly darker gray on hover */
+  transform: scale(1.05);
+}
+
+/* Animation */
+@keyframes slide-down {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

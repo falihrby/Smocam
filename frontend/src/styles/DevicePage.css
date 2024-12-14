@@ -1,0 +1,199 @@
+/* Layout and Page Content */
+.layout-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 100vh;
+  overflow: auto;
+  transition: grid-template-columns 0.3s ease;
+}
+
+/* Sidebar Styles */
+.layout-sidebar {
+  width: 250px;
+  background-color: #343a40;
+  color: white;
+  transition: width 0.3s ease; /* Smooth transition for width changes */
+  display: flex;
+  flex-direction: column;
+  overflow: auto; /* Enable scrolling if content overflows */
+}
+
+/* Navbar Styles */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Ensures the navbar stays above other content */
+  background-color: #343a40;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+}
+
+.page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Aligns content to the start */
+  justify-content: flex-start;
+  background-color: #f1f1f1;
+  padding: 2rem;
+  overflow-y: auto; /* Enables vertical scrolling */
+}
+
+.page-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+  background-color: #d5d5d5;
+  border-radius: 4px;
+}
+
+.page-content::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Custom Card */
+.custom-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.custom-card h1 {
+  font-size: 1.25rem;
+  color: #343a40;
+  margin-bottom: 1rem;
+}
+
+.card-divider {
+  border: 0;
+  height: 1px;
+  background-color: #ddd;
+  margin: 1rem 0;
+}
+
+/* Table */
+.table-wrapper {
+  overflow-x: auto; /* Enable horizontal scrolling */
+}
+
+.custom-table {
+  width: 100%;
+  min-width: 800px; /* Minimum width for table */
+  border-collapse: collapse;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  text-align: left;
+  color: #343a40;
+}
+
+.custom-table th {
+  vertical-align: middle;
+  padding: 0.75rem;
+  background-color: #f4f4f4;
+  font-weight: bold;
+  font-size: 0.875rem;
+  color: #343a40;
+}
+
+.custom-table tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.custom-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Buttons */
+.action-button-devices {
+  background-color: #343a40;
+  color: white;
+  border: none;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 30px; /* Set a fixed width */
+  height: 30px; /* Make height equal to width for square buttons */
+  display: flex; /* Center content (SVG) */
+  align-items: center; /* Vertically center */
+  justify-content: center; /* Horizontally center */
+  padding: 0; /* Remove padding */
+}
+
+.action-button-devices:hover {
+  background-color: #4b525a;
+}
+
+.action-buttons-devices {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+
+.pagination-button {
+  padding: 0.5rem 0.75rem;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination-button:hover {
+  background-color: #343a40;
+  color: white;
+}
+
+.pagination-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination-button:disabled {
+  background-color: #ddd;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  background-color: #343a40;
+  color: white;
+  border: none;
+  font-size: 14px;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  gap: 0.5rem;
+}
+
+.add-button:hover {
+  background-color: #4b525a;
+}

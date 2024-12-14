@@ -11,7 +11,7 @@ const PrintBuktiPage = () => {
   const toggleSidebar = () => setSidebarOpen((prevState) => !prevState);
 
   const handleBackClick = () => {
-    navigate(-1); // Navigates back to the previous page
+    navigate(-1); 
   };
 
   return (

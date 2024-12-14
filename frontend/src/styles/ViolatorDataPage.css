@@ -130,8 +130,15 @@
   border-radius: 4px;
 }
 
-/* Buttons */
-.action-button {
+/* Violator Data Action Buttons */
+.violator-data-action-buttons {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.violator-data-action-button {
   background-color: #343a40;
   color: white;
   border: none;
@@ -143,15 +150,8 @@
   margin-right: 0.5rem;
 }
 
-.action-button:hover {
+.violator-data-action-button:hover {
   background-color: #4b525a;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.3rem;
-  justify-content: center;
-  align-items: center;
 }
 
 /* Pagination Styles */
