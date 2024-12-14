@@ -1,0 +1,142 @@
+/* Popup Overlay */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Popup Content */
+.popup-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Popup Title */
+.popup-title {
+  font-size: 1.25rem;
+  color: #343a40;
+  margin: 0 0 12px;
+  text-align: left;
+}
+
+/* Divider */
+.popup-divider {
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+/* Popup Body: One Line Layout */
+.popup-body {
+  display: flex; /* Switch to flexbox for horizontal layout */
+  align-items: center;
+  gap: 0.5rem; /* Add spacing between elements */
+  margin-bottom: 1rem;
+}
+
+/* Label */
+.detail-label {
+  flex: 0 0 150px; /* Fixed width for labels */
+  font-size: 0.875rem;
+  color: #343a40;
+  text-align: left;
+}
+
+/* Colon */
+.detail-colon {
+  flex: 0 0 auto; /* Minimal space for colon */
+  font-size: 0.875rem;
+  color: #343a40;
+  text-align: center;
+}
+
+/* Input Field */
+.detail-input {
+  flex: 1; /* Take up the remaining space */
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  color: #666;
+  font-size: 0.875rem;
+  width: 100%; /* Ensure input stretches in the flex container */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.detail-input[disabled] {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Popup Actions */
+.popup-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+/* Button Styles */
+.popup-button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.popup-confirm-button {
+  background-color: #343a40;
+  color: white;
+}
+
+.popup-confirm-button:hover {
+  background-color: #2c2f34;
+  transform: scale(1.05);
+}
+
+.popup-cancel-button {
+  background-color: #f7f7f7;
+  color: #6c757d;
+}
+
+.popup-cancel-button:hover {
+  background-color: #e2e6ea;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    background-color: rgba(0, 0, 0, 0);
+  }
+  to {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

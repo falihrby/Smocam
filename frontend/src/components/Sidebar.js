@@ -77,15 +77,15 @@ const Sidebar = ({ isOpen }) => {
               <ul className="submenu">
                 <li className="submenu-item">
                   <a
-                    href="/page1"
-                    className={classNames("submenu-button", { active: isActive("/page1") })}
+                    href="/devices"
+                    className={classNames("submenu-button", { active: isActive("/devices") })}
                   >
                     Perangkat
                   </a>
                 </li>
                 <li className="submenu-item">
                   <a
-                    href="/page2"
+                    href="/areas"
                     className={classNames("submenu-button", { active: isActive("/page2") })}
                   >
                     Area
@@ -133,8 +133,7 @@ const DashboardIcon = () => (
 
 const ReportIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-    <path fill="currentColor" d="M9.5 2A1.5 1.5 0 0 0 8 3.5v1A1.5 1.5 0 0 0 9.5 6h5A1.5 1.5 0 0 0 16 4.5v-1A1.5 1.5 0 0 0 14.5 2z"/>
-    <path fill="currentColor" fill-rule="evenodd" d="M6.5 4.037c-1.258.07-2.052.27-2.621.84C3 5.756 3 7.17 3 9.998v6c0 2.829 0 4.243.879 5.122c.878.878 2.293.878 5.121.878h6c2.828 0 4.243 0 5.121-.878c.879-.88.879-2.293.879-5.122v-6c0-2.828 0-4.242-.879-5.121c-.569-.57-1.363-.77-2.621-.84V4.5a3 3 0 0 1-3 3h-5a3 3 0 0 1-3-3zM7 9.75a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5zm3.5 0a.75.75 0 0 0 0 1.5H17a.75.75 0 0 0 0-1.5zM7 13.25a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5zm3.5 0a.75.75 0 0 0 0 1.5H17a.75.75 0 0 0 0-1.5zM7 16.75a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5zm3.5 0a.75.75 0 0 0 0 1.5H17a.75.75 0 0 0 0-1.5z" clip-rule="evenodd"/>
+    <path fill="currentColor" d="M19.69 5.015a3.7 3.7 0 0 0-2-1v-.28a1.73 1.73 0 0 0-1.75-1.72h-8a1.74 1.74 0 0 0-1.75 1.72v.3a3.8 3.8 0 0 0-1.86 1a3.58 3.58 0 0 0-1.08 2.58v9.72a4.6 4.6 0 0 0 1.4 3.29A4.73 4.73 0 0 0 8 21.985h8a4.73 4.73 0 0 0 3.35-1.36a4.6 4.6 0 0 0 1.4-3.29v-9.73a3.66 3.66 0 0 0-1.06-2.59m-12-1.29a.24.24 0 0 1 .25-.22h8a.24.24 0 0 1 .25.22v2a.24.24 0 0 1-.25.22h-8a.24.24 0 0 1-.25-.22zm8.16 13.13h-7.7a1 1 0 0 1 0-2h7.7a1 1 0 1 1 0 2m0-4.39h-7.7a1 1 0 0 1 0-2h7.7a1 1 0 0 1 0 2"/>
   </svg>
 );
 

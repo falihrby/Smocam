@@ -1,0 +1,131 @@
+.add-account-page-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 100vh;
+  overflow: auto;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.add-account-page-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.add-account-page-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-color: #f1f1f1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.add-account-page-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.add-account-page-content::-webkit-scrollbar-thumb {
+  background-color: #d5d5d5;
+  border-radius: 4px;
+}
+
+.add-account-page-content::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.add-account-page-back-button {
+  display: flex;
+  align-items: center;
+  background-color: #343a40;
+  color: white;
+  font-size: 1rem;
+  padding: 0.5rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.add-account-page-back-button:hover {
+  background-color: #4b525a;
+}
+
+.add-account-page-back-button svg {
+  margin-right: 0.5rem;
+  width: 24px;
+  height: 24px;
+}
+
+.add-account-page-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+}
+
+.add-account-page-card h1 {
+  font-size: 1.25rem;
+  color: #343a40;
+  margin-bottom: 1rem;
+}
+
+.add-account-page-card-divider {
+  border: 0;
+  height: 1px;
+  background-color: #ddd;
+  margin: 1rem 0;
+}
+
+.add-account-page-form-group {
+  display: grid;
+  grid-template-columns: 150px 10px 1fr;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.add-account-page-form-group label {
+  font-size: 0.875rem;
+  color: #343a40;
+}
+
+.add-account-page-form-group span {
+  text-align: center;
+  color: #343a40;
+  padding-right: 1rem;
+}
+
+.add-account-page-form-group input,
+.add-account-page-form-group select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.add-account-page-form-group input:focus,
+.add-account-page-form-group select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.add-account-page-submit-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-account-page-submit-button:hover {
+  background-color: #0056b3;
+}

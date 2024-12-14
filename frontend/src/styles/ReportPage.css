@@ -125,8 +125,15 @@
   border-radius: 4px; /* Rounded corners */
 }
 
-/* Buttons */
-.action-button {
+/* Report Page Action Buttons */
+.report-page-action-buttons {
+  display: flex;
+  gap: 0.3rem; /* Space between buttons */
+  justify-content: center; /* Center buttons horizontally */
+  align-items: center; /* Center buttons vertically */
+}
+
+.report-page-action-button {
   background-color: #343a40; /* Dark gray background */
   color: white; /* White text */
   border: none; /* Remove border */
@@ -135,11 +142,9 @@
   border-radius: 4px; /* Rounded corners */
   cursor: pointer; /* Pointer cursor on hover */
   transition: background-color 0.3s ease; /* Smooth hover transition */
-  margin-right: 0.5rem; /* Spacing between buttons */
 }
 
-/* Button Hover Effect */
-.action-button:hover {
+.report-page-action-button:hover {
   background-color: #4b525a; /* Slightly lighter gray on hover */
 }
 

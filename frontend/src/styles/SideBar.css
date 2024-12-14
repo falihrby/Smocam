@@ -1,6 +1,5 @@
 /* Sidebar Container */
 .sidebar {
-  width: 210px;
   background: #ffffff;
   color: #b1b1b1;
   margin-left: -250px; /* Hidden by default */
@@ -20,7 +19,7 @@
 .sidebar-header {
   background: #ffffff;
   text-align: center;
-  padding: 0 1rem;
+  padding: 1rem;
   position: sticky; /* Fixed at the top */
   top: 0;
   z-index: 10; /* Ensure it stays above the scrollable content */
@@ -164,25 +163,4 @@
   align-items: start;
   margin-top: 1rem;
   width: 100%;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
-  }
-
-  .nav-icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .sidebar-logo {
-    max-width: 120px;
-  }
-
-  .nav-link {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-  }
 }

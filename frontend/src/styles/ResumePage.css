@@ -1,0 +1,189 @@
+/* Layout Container */
+.layout-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 100vh;
+  overflow: auto;
+  transition: grid-template-columns 0.3s ease;
+}
+
+/* Main Content */
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-color: #f1f1f1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  background-color: #343a40;
+  color: white;
+  font-size: 1rem;
+  padding: 0.5rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.back-button:hover {
+  background-color: #4b525a;
+}
+
+.back-button svg {
+  margin-right: 0.5rem;
+  width: 24px;
+  height: 24px;
+}
+
+/* Card Styles */
+.resume-card-row {
+  display: grid; /* Use CSS Grid for better control */
+  grid-template-columns: repeat(4, 1fr); /* Create 4 equal columns */
+  gap: 1rem; /* Space between the cards */
+  width: 100%; /* Ensure the row takes full width */
+}
+
+.resume-card {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box; /* Include padding in the width calculation */
+  flex: 1;
+}
+
+.resume-card-left {
+  flex: 0 0 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-box {
+  width: 50px;
+  height: 50px;
+  background-color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: white;
+  overflow: hidden;
+}
+
+.icon-box svg {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.resume-card-right {
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.resume-card-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #343a40;
+}
+
+.resume-card-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+/* Empty Text Row Styles */
+.empty-text-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  gap: 1rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.empty-column {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  height: 150px; /* Adjust the height as needed */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* New Table Styles */
+.custom-card {
+  margin: 1rem auto; /* Center the card with margin on top and bottom */
+  padding: 1.5rem; /* Space inside the card */
+  background-color: #fff; /* White background for the card */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  max-width: 100%; /* Ensure the card doesn't exceed the container's width */
+  width: 100%; /* Full width of the container */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  text-align: left;
+  color: #343a40;
+  border-bottom: 1px solid #ddd;
+}
+
+.custom-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Resume Page Action Buttons */
+.resume-page-action-buttons {
+  display: flex;
+  gap: 0.3rem; /* Space between buttons */
+  justify-content: center; /* Center buttons horizontally */
+  align-items: center; /* Center buttons vertically */
+}
+
+.resume-page-action-button {
+  background-color: #343a40; /* Dark gray background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  padding: 0.5rem 0.8rem; /* Compact padding */
+  font-size: 0.7rem; /* Small font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth hover transition */
+}
+
+.resume-page-action-button:hover {
+  background-color: #4b525a; /* Slightly lighter gray on hover */
+}

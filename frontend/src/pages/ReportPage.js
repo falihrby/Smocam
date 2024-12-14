@@ -142,9 +142,13 @@ const ReportPage = () => {
                       <div className="empty-box"></div>
                     </td>
                     <td>
-                      <div className="action-buttons">
-                        <button className="action-button" onClick={() => navigate("/print-bukti")}>Cetak Bukti</button>
-                        <button className="action-button" onClick={() => navigate("/rekaman")}>Rekaman</button>
+                      <div className="report-page-action-buttons">
+                        <button className="report-page-action-button" onClick={() => navigate("/print-bukti")}>
+                          Cetak Bukti
+                        </button>
+                        <button className="report-page-action-button" onClick={() => navigate("/rekaman")}>
+                          Rekaman
+                        </button>
                       </div>
                     </td>
                   </tr>

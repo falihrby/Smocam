@@ -7,6 +7,7 @@
   color: white;
   position: sticky;
   top: 0;
+  z-index: 10;
 }
 
 .toggle-button {
@@ -25,10 +26,16 @@
 .navbar-right {
   display: flex;
   align-items: center;
+  gap: 0.5rem; /* Add spacing between icon and username */
 }
 
 .navbar-username {
   font-size: 1rem;
   font-weight: 500;
+  color: white;
+}
+
+.navbar-icon {
+  font-size: 1.25rem;
   color: white;
 }

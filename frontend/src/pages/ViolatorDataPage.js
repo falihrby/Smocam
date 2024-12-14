@@ -67,6 +67,10 @@ const ViolatorDataPage = () => {
     window.print();
   };
 
+  const resume = () => {
+    navigate("/resume");
+  };
+
   return (
     <div className={`layout-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
@@ -77,7 +81,7 @@ const ViolatorDataPage = () => {
           <div className="header-row">
               <h1>Data Pelanggar</h1>
               <div className="button-group">
-                <button className="summary-button">
+                <button className="summary-button" onClick={resume}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path 
                       fill="#fff" 
@@ -154,10 +158,10 @@ const ViolatorDataPage = () => {
                         <div className="empty-box"></div>
                       </td>
                       <td>
-                        <div className="action-buttons">
-                          <button className="action-button" onClick={() => navigate("/details", { state: row })}>Detail</button>
-                          <button className="action-button" onClick={() => navigate("/print-bukti")}>Cetak Bukti</button>
-                          <button className="action-button" onClick={() => navigate("/rekaman")}>Rekaman</button>
+                        <div className="violator-data-action-buttons">
+                          <button className="violator-data-action-button" onClick={() => navigate("/details", { state: row })}>Detail</button>
+                          <button className="violator-data-action-button" onClick={() => navigate("/print-bukti")}>Cetak Bukti</button>
+                          <button className="violator-data-action-button" onClick={() => navigate("/rekaman")}>Rekaman</button>
                         </div>
                       </td>
                     </tr>
