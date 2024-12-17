@@ -17,6 +17,10 @@ const ReportPage = () => {
 
   const toggleSidebar = () => setSidebarOpen((prevState) => !prevState);
 
+  // Get username from localStorage
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
+
   const tableData = [
     { no: 1, dateTime: "2024-12-01 14:32:06", description: "Telah deteksi merokok", status: "Ada Mahasiswa", area: "Zone A", cctv: "CCTV-1" },
     { no: 2, dateTime: "2024-12-02 15:12:30", description: "Telah deteksi merokok", status: "Tidak Ada Mahasiswa", area: "Zone B", cctv: "CCTV-2" },
@@ -71,7 +75,7 @@ const ReportPage = () => {
     <div className={`layout-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="layout-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
         <div className="page-content">
           <div className="custom-card">
             <div className="header-row">

@@ -16,18 +16,6 @@
   width: 60px; /* Collapsed sidebar width */
 }
 
-/* Navbar Styles */
-.navbar {
-  position: sticky; /* Sticky position */
-  top: 0;
-  z-index: 1000; /* High z-index to ensure it appears above other elements */
-  background-color: #343a40; /* Dark background color */
-  color: white;
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-}
-
 /* Main Content */
 .layout-main {
   display: flex;

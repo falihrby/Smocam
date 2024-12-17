@@ -17,6 +17,10 @@ const ResumePage = () => {
 
   const toggleSidebar = () => setSidebarOpen((prevState) => !prevState);
 
+  // Get username from localStorage
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
+
   const handleBackClick = () => {
     navigate(-1);
   };
@@ -112,7 +116,7 @@ const ResumePage = () => {
     <div className={`layout-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="layout-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
         <div className="page-content">
           <button className="back-button" onClick={handleBackClick}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">

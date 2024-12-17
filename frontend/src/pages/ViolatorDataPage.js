@@ -26,6 +26,10 @@ const ViolatorDataPage = () => {
   // Convert a date string to a Date object
   const parseDate = (dateString) => new Date(dateString.split(" ")[0]);
 
+  // Get username from localStorage
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
+
   // Apply filters
   const filteredData = tableData.filter((row) => {
     const departmentMatches = selectedDepartment === "Semua" || row.department === selectedDepartment;
@@ -75,7 +79,7 @@ const ViolatorDataPage = () => {
     <div className={`layout-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="layout-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
         <div className="page-content">
           <div className="custom-card">
           <div className="header-row">

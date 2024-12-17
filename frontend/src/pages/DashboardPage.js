@@ -10,6 +10,10 @@ const DashboardPage = () => {
   const areaButtonsRef = useRef(null);
   const rectangleRef = useRef(null);
 
+  // Get username from localStorage
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
+
   const toggleSidebar = () => setSidebarOpen((prevState) => !prevState);
 
   const handleMouseDrag = (e) => {
@@ -113,7 +117,7 @@ const DashboardPage = () => {
     <div className={`dashboard-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="dashboard-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
         <section className="dashboard-content">
           <div className="dashboard-row card-row">
             {cardData.map((card, index) => (

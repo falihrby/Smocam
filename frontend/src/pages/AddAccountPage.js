@@ -1,20 +1,28 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Navbar from "../components/Navbar";
+// src/pages/AddAccountPage.js
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
+import PopupNotification from "../components/PopupNotification";
 import "../styles/AddAccountPage.css";
 
 const AddAccountPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // Extract tableData from location state
-  const tableData = useMemo(() => location.state?.tableData || [], [location.state]);
+  // Popup Notification state
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
 
   const [formData, setFormData] = useState({
     id: "",
-    fullName: "", // Added full name field
+    fullName: "",
     username: "",
     email: "",
     role: "",
@@ -24,14 +32,19 @@ const AddAccountPage = () => {
   });
 
   useEffect(() => {
-    // Generate the next ID based on the last account ID
-    const generateAccountId = () => {
-      const lastId = tableData.length > 0 ? parseInt(tableData[tableData.length - 1].id, 10) : 0;
-      const nextId = String(lastId + 1).padStart(3, "0");
-      setFormData((prev) => ({ ...prev, id: nextId }));
+    const generateAccountId = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const ids = querySnapshot.docs.map((doc) => parseInt(doc.data().id, 10) || 0);
+        const nextId = String(Math.max(0, ...ids) + 1).padStart(3, "0");
+        setFormData((prev) => ({ ...prev, id: nextId }));
+      } catch (error) {
+        console.error("Error generating ID:", error);
+      }
     };
+
     generateAccountId();
-  }, [tableData]);
+  }, []);
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
@@ -45,28 +58,88 @@ const AddAccountPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !formData.fullName || // Added validation for full name
-      !formData.username ||
-      !formData.email ||
-      !formData.role ||
-      formData.password !== formData.confirmPassword
-    ) {
-      alert("Harap isi semua kolom yang diperlukan dan pastikan kata sandi sesuai.");
+
+    // Input validations
+    if (!validateEmail(formData.email)) {
+      setPopupMessage("Email harus dalam format yang benar (contoh: user@example.com).");
+      setIsPopupOpen(true);
       return;
     }
-    console.log("Account Added:", formData);
-    alert("Akun berhasil ditambahkan!");
-    navigate("/account");
+
+    if (!validatePassword(formData.password)) {
+      setPopupMessage(
+        "Password harus memiliki minimal 8 karakter, mengandung huruf besar, huruf kecil, dan angka."
+      );
+      setIsPopupOpen(true);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setPopupMessage("Konfirmasi password tidak cocok dengan password.");
+      setIsPopupOpen(true);
+      return;
+    }
+
+    if (formData.username === formData.email) {
+      setPopupMessage("Username dan email tidak boleh sama.");
+      setIsPopupOpen(true);
+      return;
+    }
+
+    if (loading) return; // Prevent duplicate submissions
+    setLoading(true);
+
+    try {
+      await addDoc(collection(db, "users"), {
+        id: formData.id,
+        fullName: formData.fullName,
+        username: formData.username,
+        email: formData.email,
+        role: formData.role,
+        status: formData.status,
+        password: formData.password,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      setPopupMessage("Akun berhasil ditambahkan!");
+      setIsPopupOpen(true);
+
+      // Delay navigation to ensure popup shows
+      setTimeout(() => {
+        navigate("/account");
+      }, 2000);
+    } catch (error) {
+      console.error("Kesalahan saat menambahkan akun:", error);
+      setPopupMessage("Terjadi kesalahan saat menambahkan akun.");
+      setIsPopupOpen(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className={`add-account-page-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="add-account-page-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
+        <PopupNotification
+          isOpen={isPopupOpen}
+          message={popupMessage}
+          onClose={() => setIsPopupOpen(false)}
+        />
         <div className="add-account-page-content">
           <button className="add-account-page-back-button" onClick={handleBackClick}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
@@ -135,7 +208,7 @@ const AddAccountPage = () => {
                 </select>
               </div>
               <div className="add-account-page-form-group">
-                <label>Kata sandi *</label>
+                <label>Kata Sandi *</label>
                 <span>:</span>
                 <input
                   type="password"
@@ -146,7 +219,7 @@ const AddAccountPage = () => {
                 />
               </div>
               <div className="add-account-page-form-group">
-                <label>Konfirmasi kata sandi *</label>
+                <label>Konfirmasi Kata Sandi *</label>
                 <span>:</span>
                 <input
                   type="password"
@@ -157,8 +230,12 @@ const AddAccountPage = () => {
                 />
               </div>
               <div className="add-account-page-form-group">
-                <button type="submit" className="add-account-page-submit-button">
-                  Save
+                <button
+                  type="submit"
+                  className="add-account-page-submit-button"
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Simpan"}
                 </button>
               </div>
             </form>
