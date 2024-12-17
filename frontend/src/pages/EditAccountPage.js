@@ -1,7 +1,11 @@
+// src/pages/EditAccountPage.js
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import PopupNotification from "../components/PopupNotification";
 import "../styles/AddAccountPage.css"; // Reuse styles from AddAccountPage
 
 const EditAccountPage = () => {
@@ -9,10 +13,19 @@ const EditAccountPage = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Popup Notification state
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupType, setPopupType] = useState("success");
+
+  // Get username from localStorage
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
+
   // Get account data from location state
   const accountData = location.state || {
     id: "",
-    fullName: "", // Add "fullName" to the initial data
+    fullName: "",
     username: "",
     email: "",
     role: "",
@@ -21,6 +34,7 @@ const EditAccountPage = () => {
 
   // State to manage the form data
   const [formData, setFormData] = useState({ ...accountData, newPassword: "", confirmPassword: "" });
+  const [loading, setLoading] = useState(false);
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -31,42 +45,97 @@ const EditAccountPage = () => {
     }));
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Validate required fields and password matching
+  const validateForm = () => {
     if (!formData.fullName || !formData.username || !formData.email || !formData.role) {
-      alert("Harap isi semua kolom yang diperlukan.");
-      return;
+      setPopupMessage("Harap isi semua kolom yang diperlukan.");
+      setPopupType("error");
+      setIsPopupOpen(true);
+      return false;
     }
 
     if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
-      alert("Kata sandi tidak cocok.");
-      return;
+      setPopupMessage("Kata sandi baru tidak cocok dengan konfirmasi kata sandi.");
+      setPopupType("error");
+      setIsPopupOpen(true);
+      return false;
     }
 
-    const updatedData = { ...formData };
-    // Remove password fields if they are not being updated
-    if (!formData.newPassword) {
-      delete updatedData.newPassword;
-      delete updatedData.confirmPassword;
-    }
+    return true;
+  };
 
-    console.log("Account Updated:", updatedData);
-    alert("Akun berhasil diperbarui!");
-    navigate("/account"); // Navigate back to account list
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    setLoading(true);
+
+    try {
+      // Query Firestore for the document with the custom 'id' field
+      const q = query(collection(db, "users"), where("id", "==", formData.id));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setPopupMessage("Akun tidak ditemukan.");
+        setPopupType("error");
+        setIsPopupOpen(true);
+        return;
+      }
+
+      // Get the document ID from the query result
+      const docId = querySnapshot.docs[0].id;
+
+      const updatedData = {
+        fullName: formData.fullName,
+        username: formData.username,
+        email: formData.email,
+        role: formData.role,
+        status: formData.status,
+        updatedAt: new Date(),
+      };
+
+      // Add new password if updated
+      if (formData.newPassword) {
+        updatedData.password = formData.newPassword;
+      }
+
+      // Update the Firestore document
+      const accountRef = doc(db, "users", docId);
+      await updateDoc(accountRef, updatedData);
+
+      setPopupMessage("Akun berhasil diperbarui!");
+      setPopupType("success");
+      setIsPopupOpen(true);
+
+      // Delay navigation to ensure popup shows
+      setTimeout(() => {
+        navigate("/account");
+      }, 2000);
+    } catch (error) {
+      console.error("Error updating account:", error);
+      setPopupMessage("Terjadi kesalahan saat memperbarui akun.");
+      setPopupType("error");
+      setIsPopupOpen(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
-
   const handleBackClick = () => navigate(-1);
 
   return (
     <div className={`add-account-page-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="add-account-page-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
+        <PopupNotification
+          isOpen={isPopupOpen}
+          message={popupMessage}
+          onClose={() => setIsPopupOpen(false)}
+          type={popupType}
+        />
         <div className="add-account-page-content">
           <button className="add-account-page-back-button" onClick={handleBackClick}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
@@ -155,8 +224,12 @@ const EditAccountPage = () => {
                 />
               </div>
               <div className="add-account-page-form-group">
-                <button type="submit" className="add-account-page-submit-button">
-                  Simpan
+                <button
+                  type="submit"
+                  className="add-account-page-submit-button"
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Simpan"}
                 </button>
               </div>
             </form>

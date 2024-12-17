@@ -28,6 +28,10 @@ const AreaPage = () => {
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
+  // Get username from localStorage
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
+
   const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
@@ -181,7 +185,7 @@ const AreaPage = () => {
     <div className={`layout-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="layout-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
         <div className="page-content">
           {/* Delete Confirmation Modal */}
           <DeleteConfirmationModal

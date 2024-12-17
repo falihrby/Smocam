@@ -9,6 +9,10 @@ const DetailViolatorPage = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
+  // Get username from localStorage
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
+
   // Retrieve violator data from the state passed via navigation
   const violatorData = location.state;
 
@@ -36,7 +40,7 @@ const DetailViolatorPage = () => {
     <div className={`layout-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="layout-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
         <div className="page-content">
           <button className="back-button" onClick={handleBackClick}>
             <svg

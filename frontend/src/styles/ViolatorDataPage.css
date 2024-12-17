@@ -19,18 +19,6 @@
   flex-direction: column;
 }
 
-/* Navbar Styles */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background-color: #343a40;
-  color: white;
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-}
-
 /* Main Content */
 .layout-main {
   flex: 1;

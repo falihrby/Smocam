@@ -36,6 +36,10 @@ const DevicePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
 
+  // Get username from localStorage
+  const userSession = JSON.parse(localStorage.getItem("userSession"));
+  const username = userSession ? userSession.username : "Guest";
+
   // Toggle sidebar visibility
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
@@ -87,7 +91,7 @@ const DevicePage = () => {
     <div className={`layout-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="layout-main">
-        <Navbar toggle={toggleSidebar} />
+        <Navbar toggle={toggleSidebar} username={username} />
         <div className="page-content">
           {/* Include the Delete Confirmation Modal */}
           <DeleteConfirmationModal
