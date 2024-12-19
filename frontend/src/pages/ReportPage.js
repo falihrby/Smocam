@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Dropdown from "../components/Dropdown";
@@ -9,6 +11,8 @@ const ReportPage = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [areas, setAreas] = useState(["Semua"]);
+  const [cctvs, setCctvs] = useState(["Semua"]);
   const [selectedArea, setSelectedArea] = useState("Semua");
   const [selectedCCTV, setSelectedCCTV] = useState("Semua");
   const [startDate, setStartDate] = useState("");
@@ -71,6 +75,39 @@ const ReportPage = () => {
     window.print();
   };
 
+  // Fetch areas and cctvs from Firestore
+  useEffect(() => {
+    const areasCollectionRef = collection(db, "areas");
+    const devicesCollectionRef = collection(db, "devices");
+
+    const unsubscribeAreas = onSnapshot(
+      areasCollectionRef,
+      (snapshot) => {
+        const areaNames = snapshot.docs.map((doc) => doc.data().areaName);
+        setAreas(["Semua", ...new Set(areaNames)]);
+      },
+      (error) => {
+        console.error("Error fetching areas:", error);
+      }
+    );
+
+    const unsubscribeCCTVs = onSnapshot(
+      devicesCollectionRef,
+      (snapshot) => {
+        const cctvNames = snapshot.docs.map((doc) => doc.data().cameraName);
+        setCctvs(["Semua", ...new Set(cctvNames)]);
+      },
+      (error) => {
+        console.error("Error fetching CCTVs:", error);
+      }
+    );
+
+    return () => {
+      unsubscribeAreas();
+      unsubscribeCCTVs();
+    };
+  }, []);
+
   return (
     <div className={`layout-container ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
@@ -94,13 +131,13 @@ const ReportPage = () => {
             <div className="filter-container">
               <Dropdown
                 label="Area"
-                options={["Semua", "Zone A", "Zone B"]}
+                options={areas}
                 selectedValue={selectedArea}
                 onChange={setSelectedArea}
               />
               <Dropdown
                 label="CCTV"
-                options={["Semua", "CCTV-1", "CCTV-2"]}
+                options={cctvs}
                 selectedValue={selectedCCTV}
                 onChange={setSelectedCCTV}
               />

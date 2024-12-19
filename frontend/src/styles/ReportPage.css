@@ -218,8 +218,6 @@
   gap: 1rem;
   display: flex;
   justify-content: flex-start;
-  position: relative; /* Creates a stacking context */
-  z-index: 500; /* Ensure it's below the navbar */
 }
 
 /* Filter Dropdown Wrapper */

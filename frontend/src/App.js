@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import DashboardPage from "./pages/DashboardPage";
 import ReportPage from "./pages/ReportPage";
-import RekamanPage from "./pages/RekamanPage"; // RekamanPage is imported and now used
+import RekamanPage from "./pages/RekamanPage"; 
 import PrintEvidencePage from "./pages/PrintEvidencePage";
 import ViolatorDataPage from "./pages/ViolatorDataPage";
 import DetailViolatorPage from "./pages/DetailViolatorPage";
@@ -52,6 +52,7 @@ function App() {
           <Route path="/account-add" element={<AddAccountPage />} />
           <Route path="/account-edit" element={<EditAccountPage />} />
           <Route path="/account-view/:id" element={<ViewAccountPage />} />
+
 
           {/* Areas */}
           <Route path="/areas" element={<AreaPage />} />

@@ -1,8 +1,7 @@
-// File: src/components/PopupForm.js
 import React from "react";
 import "../styles/PopupForm.css";
 
-const PopupForm = ({ isOpen, title, children, onClose, onSubmit }) => {
+const PopupForm = ({ isOpen, title, children, onClose, onSubmit, footerNote }) => {
   if (!isOpen) return null;
 
   return (
@@ -11,6 +10,7 @@ const PopupForm = ({ isOpen, title, children, onClose, onSubmit }) => {
         <h3 className="popup-title">{title}</h3>
         <hr className="popup-divider" />
         <div className="popup-body">{children}</div>
+        {footerNote && <p className="popup-footer-note">{footerNote}</p>}
         <div className="popup-actions">
           <button
             type="button"

@@ -1,43 +1,83 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { collection, addDoc, getDocs, query, orderBy, where } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import PopupNotification from "../components/PopupNotification";
 import "../styles/AddDevicePage.css";
 
 const AddDevicePage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Get username from localStorage
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [areas, setAreas] = useState([]);
+
   const userSession = JSON.parse(localStorage.getItem("userSession"));
   const username = userSession ? userSession.username : "Guest";
 
-  // Extract tableData from location state
-  const tableData = useMemo(() => location.state?.tableData || [], [location.state]);
-
   const [formData, setFormData] = useState({
     id: "",
-    cctvName: "",
+    cameraName: "",
     cameraPort: "",
-    status: "Aktif",
+    status: "Active",
     ipAddress: "",
-    cameraType: "",
+    streamPath: "", // Replaces cameraType
     area: "",
     username: "",
     password: "",
     description: "",
   });
 
-  useEffect(() => {
-    // Generate the next ID based on the last device ID
-    const generateDeviceId = () => {
-      const lastId = tableData.length > 0 ? parseInt(tableData[tableData.length - 1].id, 10) : 0;
-      const nextId = String(lastId + 1).padStart(3, "0"); 
-      setFormData((prev) => ({ ...prev, id: nextId }));
+  const translateStatus = (status) => {
+    const translations = {
+      Active: "Aktif",
+      Inactive: "Tidak Aktif",
     };
-    generateDeviceId();
-  }, [tableData]);
+    return translations[status] || status;
+  };
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const devicesQuery = query(collection(db, "devices"), orderBy("id", "desc"));
+        const querySnapshot = await getDocs(devicesQuery);
+        if (!querySnapshot.empty) {
+          const lastDevice = querySnapshot.docs[0].data();
+          const nextId = String(parseInt(lastDevice.id, 10) + 1).padStart(3, "0");
+          setFormData((prev) => ({ ...prev, id: nextId }));
+        } else {
+          setFormData((prev) => ({ ...prev, id: "001" }));
+        }
+      } catch (error) {
+        console.error("Error fetching devices:", error);
+        setPopupMessage("Failed to fetch device data. Please try again.");
+        setIsPopupOpen(true);
+      }
+    };
+
+    fetchDevices();
+  }, []);
+
+  useEffect(() => {
+    const fetchAreas = async () => {
+      try {
+        const areasQuery = query(collection(db, "areas"), orderBy("areaName", "asc"));
+        const querySnapshot = await getDocs(areasQuery);
+        const areaList = querySnapshot.docs.map((doc) => doc.data().areaName);
+        setAreas(areaList);
+      } catch (error) {
+        console.error("Error fetching areas:", error);
+        setPopupMessage("Failed to fetch areas. Please try again.");
+        setIsPopupOpen(true);
+      }
+    };
+
+    fetchAreas();
+  }, []);
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
@@ -51,15 +91,85 @@ const AddDevicePage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.cctvName || !formData.cameraPort || !formData.ipAddress || !formData.cameraType || !formData.area) {
-      alert("Please fill out all required fields.");
-      return;
+  const validateUniqueCameraName = async (name) => {
+    try {
+      const cameraQuery = query(collection(db, "devices"), where("cameraName", "==", name));
+      const querySnapshot = await getDocs(cameraQuery);
+      return querySnapshot.empty;
+    } catch (error) {
+      console.error("Error checking unique camera name:", error);
+      setPopupMessage("Failed to check camera name. Please try again.");
+      setIsPopupOpen(true);
+      return false;
     }
-    console.log("Device Added:", formData);
-    alert("Device successfully added!");
-    navigate("/devices");
+  };
+
+  const validateForm = async () => {
+    const ipRegex =
+      /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
+
+    if (
+      !formData.cameraName ||
+      !formData.cameraPort ||
+      !formData.ipAddress ||
+      !formData.streamPath || // Validates streamPath
+      !formData.area ||
+      !formData.username ||
+      !formData.password ||
+      !formData.status
+    ) {
+      setPopupMessage("Please fill out all required fields.");
+      setIsPopupOpen(true);
+      return false;
+    }
+
+    if (!ipRegex.test(formData.ipAddress)) {
+      setPopupMessage("Invalid IP Address format.");
+      setIsPopupOpen(true);
+      return false;
+    }
+
+    if (isNaN(formData.cameraPort)) {
+      setPopupMessage("Camera port must be a number.");
+      setIsPopupOpen(true);
+      return false;
+    }
+
+    const isUniqueName = await validateUniqueCameraName(formData.cameraName);
+    if (!isUniqueName) {
+      setPopupMessage("Camera name is already in use. Please choose another.");
+      setIsPopupOpen(true);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!(await validateForm())) return;
+
+    setIsSaving(true);
+    try {
+      await addDoc(collection(db, "devices"), {
+        ...formData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      setPopupMessage("Device successfully added!");
+      setIsPopupOpen(true);
+
+      setTimeout(() => {
+        navigate("/devices");
+      }, 2000);
+    } catch (error) {
+      console.error("Error saving device:", error);
+      setPopupMessage("Failed to save the device. Please try again.");
+      setIsPopupOpen(true);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -67,6 +177,11 @@ const AddDevicePage = () => {
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="layout-main">
         <Navbar toggle={toggleSidebar} username={username} />
+        <PopupNotification
+          isOpen={isPopupOpen}
+          message={popupMessage}
+          onClose={() => setIsPopupOpen(false)}
+        />
         <div className="page-content">
           <button className="back-button" onClick={handleBackClick}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
@@ -86,104 +201,62 @@ const AddDevicePage = () => {
               <div className="add-device-form-group">
                 <label>Nama CCTV *</label>
                 <span>:</span>
-                <input
-                  type="text"
-                  name="cctvName"
-                  value={formData.cctvName}
-                  onChange={handleInputChange}
-                  required
-                />
+                <input type="text" name="cameraName" value={formData.cameraName} onChange={handleInputChange} />
               </div>
               <div className="add-device-form-group">
                 <label>Port Kamera *</label>
                 <span>:</span>
-                <input
-                  type="text"
-                  name="cameraPort"
-                  value={formData.cameraPort}
-                  onChange={handleInputChange}
-                  required
-                />
+                <input type="text" name="cameraPort" value={formData.cameraPort} onChange={handleInputChange} />
               </div>
               <div className="add-device-form-group">
-                <label>Status</label>
+                <label>Status *</label>
                 <span>:</span>
                 <select name="status" value={formData.status} onChange={handleInputChange}>
-                  <option value="Aktif">Aktif</option>
-                  <option value="Tidak Aktif">Tidak Aktif</option>
+                  <option value="Active">{translateStatus("Active")}</option>
+                  <option value="Inactive">{translateStatus("Inactive")}</option>
                 </select>
               </div>
               <div className="add-device-form-group">
                 <label>IP Address *</label>
                 <span>:</span>
-                <input
-                  type="text"
-                  name="ipAddress"
-                  value={formData.ipAddress}
-                  onChange={handleInputChange}
-                  required
-                />
+                <input type="text" name="ipAddress" value={formData.ipAddress} onChange={handleInputChange} />
               </div>
               <div className="add-device-form-group">
-                <label>Tipe Kamera *</label>
+                <label>Stream Path *</label>
                 <span>:</span>
-                <select
-                  name="cameraType"
-                  value={formData.cameraType}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Pilih Tipe</option>
-                  <option value="PTZ">PTZ</option>
-                  <option value="Fixed">Fixed</option>
-                </select>
+                <input type="text" name="streamPath" value={formData.streamPath} onChange={handleInputChange} />
               </div>
               <div className="add-device-form-group">
                 <label>Area *</label>
                 <span>:</span>
-                <select
-                  name="area"
-                  value={formData.area}
-                  onChange={handleInputChange}
-                  required
-                >
+                <select name="area" value={formData.area} onChange={handleInputChange}>
                   <option value="">Pilih Area</option>
-                  <option value="Customer Service">Customer Service</option>
-                  <option value="Lobby Utama">Lobby Utama</option>
+                  {areas.map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+                  ))}
                 </select>
               </div>
               <div className="add-device-form-group">
-                <label>Username</label>
+                <label>Username *</label>
                 <span>:</span>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                />
+                <input type="text" name="username" value={formData.username} onChange={handleInputChange} />
               </div>
               <div className="add-device-form-group">
-                <label>Password</label>
+                <label>Kata Sandi *</label>
                 <span>:</span>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                />
+                <input type="password" name="password" value={formData.password} onChange={handleInputChange} />
               </div>
               <div className="add-device-form-group">
-                <label>Deskripsi</label>
+                <label>Deksripsi</label>
                 <span>:</span>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                ></textarea>
+                <textarea name="description" value={formData.description} onChange={handleInputChange}></textarea>
               </div>
+              <p className="small-text">
+                * Nama CCTV: Lokasi spesifik di area tersebut (contoh: Ruang 4002)
+              </p>
               <div className="add-device-form-group">
-                <button type="submit" className="add-device-submit-button">
-                  Simpan
+                <button type="submit" className="add-device-submit-button" disabled={isSaving}>
+                  {isSaving ? "Menyimpan..." : "Tersimpan"}
                 </button>
               </div>
             </form>
@@ -195,4 +268,3 @@ const AddDevicePage = () => {
 };
 
 export default AddDevicePage;
-
