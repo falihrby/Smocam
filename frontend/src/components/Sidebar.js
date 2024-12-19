@@ -86,7 +86,7 @@ const Sidebar = ({ isOpen }) => {
                 <li className="submenu-item">
                   <a
                     href="/areas"
-                    className={classNames("submenu-button", { active: isActive("/page2") })}
+                    className={classNames("submenu-button", { active: isActive("/areas") })}
                   >
                     Area
                   </a>

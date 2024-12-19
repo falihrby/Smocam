@@ -88,8 +88,8 @@
 /* Form Group */
 .add-device-form-group {
   display: grid;
-  grid-template-columns: 150px 10px 1fr; /* Label, colon, and input */
-  align-items: center; /* Vertically center the content */
+  grid-template-columns: 150px 10px 1fr; 
+  align-items: center; 
   margin-bottom: 1rem;
 }
 
@@ -107,12 +107,14 @@
 .add-device-form-group input,
 .add-device-form-group select,
 .add-device-form-group textarea {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-  color: #666;
-  font-size: 0.875rem;
+  flex: 1; 
+  color: #343a40;
+  width: 100%; 
+  padding: 8px; 
+  box-sizing: border-box; 
+  border: 1px solid #ccc; 
+  border-radius: 4px; 
+  font-size: 0.875rem; 
 }
 
 .add-device-form-group input:focus,
@@ -129,7 +131,7 @@
 
 /* Submit Button */
 .add-device-submit-button {
-  background-color: #007bff;
+  background-color: #343a40;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -140,5 +142,11 @@
 }
 
 .add-device-submit-button:hover {
-  background-color: #0056b3;
+  background-color: #4b525a;
+}
+
+.small-text {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin: 1rem;
 }

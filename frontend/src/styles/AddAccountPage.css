@@ -108,7 +108,7 @@
   box-sizing: border-box; 
   border: 1px solid #ccc; 
   border-radius: 4px; 
-  font-size: 1rem; 
+  font-size: 0.875rem; 
 }
 
 .add-account-page-form-group input:focus,

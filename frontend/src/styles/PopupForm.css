@@ -42,44 +42,34 @@
 /* Popup Body: One Line Layout */
 .popup-body {
   display: flex; /* Switch to flexbox for horizontal layout */
-  align-items: center;
+  flex-direction: column; /* Ensure fields stack vertically */
+  align-items: stretch;
   gap: 0.5rem; /* Add spacing between elements */
   margin-bottom: 1rem;
 }
 
 /* Label */
 .detail-label {
-  flex: 0 0 150px; /* Fixed width for labels */
   font-size: 0.875rem;
   color: #343a40;
   text-align: left;
 }
 
-/* Colon */
-.detail-colon {
-  flex: 0 0 auto; /* Minimal space for colon */
-  font-size: 0.875rem;
-  color: #343a40;
-  text-align: center;
-}
-
 /* Input Field */
 .detail-input {
-  flex: 1; /* Take up the remaining space */
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  color: #343a40;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #f9f9f9;
-  color: #666;
   font-size: 0.875rem;
-  width: 100%; /* Ensure input stretches in the flex container */
-  box-sizing: border-box; /* Include padding in width calculation */
 }
 
-.detail-input[disabled] {
-  background-color: #e9ecef;
-  color: #6c757d;
-  cursor: not-allowed;
+.detail-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
 }
 
 /* Popup Actions */
@@ -118,6 +108,13 @@
 .popup-cancel-button:hover {
   background-color: #e2e6ea;
   transform: scale(1.05);
+}
+
+.popup-footer-note {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 0;
+  text-align: left;
 }
 
 /* Animations */

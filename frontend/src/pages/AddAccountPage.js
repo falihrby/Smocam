@@ -235,7 +235,7 @@ const AddAccountPage = () => {
                   className="add-account-page-submit-button"
                   disabled={loading}
                 >
-                  {loading ? "Saving..." : "Simpan"}
+                  {loading ? "Menyimpan..." : "Tersimpan"}
                 </button>
               </div>
             </form>

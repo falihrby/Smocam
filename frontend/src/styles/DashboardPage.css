@@ -159,7 +159,6 @@
   padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
-  width: 7rem;
   transition: background-color 0.3s, color 0.3s ease;
 }
 
@@ -170,6 +169,7 @@
 .area-button.selected {
   background-color: #343a40;
   color: white;
+  font-weight: bold;
 }
 
 /* Rectangle and Label Wrapper */
@@ -177,6 +177,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  align-items: left;
+  justify-content: center;
 }
 
 .rectangle-label {
@@ -193,6 +195,15 @@
   width: 100%;
   background-color: #e0e0e0;
   border-radius: 8px;
+}
+
+/* No Cameras Available Styling */
+.no-cameras-message {
+  font-size: 1.1rem;
+  color: #6c757d;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 1rem;
 }
 
 /* Detected Today Section */
@@ -290,15 +301,12 @@
   align-items: center;
   width: 213px;
   cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .scroll-box-wrapper:hover {
   opacity: 0.9;
-}
-
-.scroll-box-wrapper:hover .scroll-box {
   transform: scale(1.05);
-  transition: transform 0.2s ease;
 }
 
 .scroll-box {

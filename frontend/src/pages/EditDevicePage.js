@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import { db } from "../firebaseConfig"; // Firestore configuration
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import PopupNotification from "../components/PopupNotification";
 import "../styles/AddDevicePage.css";
 
 const EditDevicePage = () => {
@@ -12,28 +15,44 @@ const EditDevicePage = () => {
   // Device data from the previous page
   const deviceData = location.state || {
     id: "",
-    cctvName: "",
+    cameraName: "",
     cameraPort: "",
-    status: "Aktif",
+    status: "Active",
     ipAddress: "",
-    cameraType: "",
+    streamPath: "",
     area: "",
     username: "",
-    password: "",
     description: "",
   };
 
-  // State to manage the form data
-  const [formData, setFormData] = useState(deviceData);
+  // Initialize form data with an empty password field
+  const [formData, setFormData] = useState({
+    ...deviceData,
+    password: "", // Password is empty on page load
+  });
 
-  // Toggle sidebar
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [areas, setAreas] = useState([]);
+
+  // Toggle sidebar visibility
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
-  // Get username from localStorage
+  // Retrieve username for Navbar
   const userSession = JSON.parse(localStorage.getItem("userSession"));
   const username = userSession ? userSession.username : "Guest";
 
-  // Handle input changes
+  // Translation logic for status
+  const translateStatus = (status) => {
+    const translations = {
+      Active: "Aktif",
+      Inactive: "Tidak Aktif",
+    };
+    return translations[status] || status;
+  };
+
+  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -42,25 +61,121 @@ const EditDevicePage = () => {
     }));
   };
 
-  // Save changes and navigate back to the device list
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Fetch areas from Firestore
+  useEffect(() => {
+    const fetchAreas = async () => {
+      try {
+        const areasQuery = query(collection(db, "areas"), where("areaName", "!=", ""));
+        const querySnapshot = await getDocs(areasQuery);
+        const areaList = querySnapshot.docs.map((doc) => doc.data().areaName);
+        setAreas(areaList);
+      } catch (error) {
+        console.error("Error fetching areas:", error);
+        setPopupMessage("Failed to fetch areas. Please try again.");
+        setIsPopupOpen(true);
+      }
+    };
 
-    // Validation (basic)
-    if (!formData.cctvName || !formData.cameraPort || !formData.ipAddress || !formData.cameraType || !formData.area) {
-      alert("Please fill out all required fields.");
-      return;
+    fetchAreas();
+  }, []);
+
+  // Validate the form inputs
+  const validateForm = () => {
+    if (
+      !formData.cameraName ||
+      !formData.cameraPort ||
+      !formData.ipAddress ||
+      !formData.streamPath ||
+      !formData.area
+    ) {
+      setPopupMessage("Harap isi semua kolom yang berbintang.");
+      setIsPopupOpen(true);
+      return false;
     }
 
-    console.log("Device Updated:", formData);
-    alert("Device successfully updated!");
+    const ipRegex =
+      /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
 
-    // Navigate back to devices page (you can pass updated data to the state or update backend)
-    navigate("/devices");
+    if (!ipRegex.test(formData.ipAddress)) {
+      setPopupMessage("Invalid IP Address format.");
+      setIsPopupOpen(true);
+      return false;
+    }
+
+    if (isNaN(formData.cameraPort) || formData.cameraPort.trim() === "") {
+      setPopupMessage("Camera Port must be a valid number.");
+      setIsPopupOpen(true);
+      return false;
+    }
+
+    return true;
   };
 
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    setIsSaving(true);
+
+    try {
+      // Query Firestore for the document with the specified ID
+      const devicesRef = collection(db, "devices");
+      const q = query(devicesRef, where("id", "==", formData.id));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setPopupMessage("Perangkat tidak ditemukan.");
+        setIsPopupOpen(true);
+        setIsSaving(false);
+        return;
+      }
+
+      // Get the Firestore document ID
+      const deviceDoc = querySnapshot.docs[0];
+      const documentId = deviceDoc.id;
+
+      // Prepare the updated data
+      const updatedData = {
+        cameraName: formData.cameraName,
+        cameraPort: formData.cameraPort,
+        status: formData.status,
+        ipAddress: formData.ipAddress,
+        streamPath: formData.streamPath,
+        area: formData.area,
+        username: formData.username,
+        description: formData.description,
+        updatedAt: new Date(),
+      };
+
+      // Include password only if it's updated
+      if (formData.password.trim()) {
+        updatedData.password = formData.password;
+      }
+
+      // Update the document in Firestore
+      await updateDoc(doc(db, "devices", documentId), updatedData);
+
+      setPopupMessage("Perangkat berhasil diperbarui!");
+      setIsPopupOpen(true);
+
+      // Delay navigation to ensure the popup is displayed
+      setTimeout(() => {
+        navigate("/devices");
+      }, 2000);
+    } catch (error) {
+      console.error("Error updating device:", error);
+      setPopupMessage("Terjadi kesalahan saat memperbarui perangkat.");
+      setIsPopupOpen(true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Handle back navigation
   const handleBackClick = () => {
-    navigate(-1); // Go back to the previous page
+    navigate(-1);
   };
 
   return (
@@ -68,6 +183,11 @@ const EditDevicePage = () => {
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       <div className="layout-main">
         <Navbar toggle={toggleSidebar} username={username} />
+        <PopupNotification
+          isOpen={isPopupOpen}
+          message={popupMessage}
+          onClose={() => setIsPopupOpen(false)}
+        />
         <div className="page-content">
           <button className="back-button" onClick={handleBackClick}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
@@ -89,8 +209,8 @@ const EditDevicePage = () => {
                 <span>:</span>
                 <input
                   type="text"
-                  name="cctvName"
-                  value={formData.cctvName}
+                  name="cameraName"
+                  value={formData.cameraName}
                   onChange={handleInputChange}
                   required
                 />
@@ -110,8 +230,8 @@ const EditDevicePage = () => {
                 <label>Status</label>
                 <span>:</span>
                 <select name="status" value={formData.status} onChange={handleInputChange}>
-                  <option value="Aktif">Aktif</option>
-                  <option value="Tidak Aktif">Tidak Aktif</option>
+                  <option value="Active">{translateStatus("Active")}</option>
+                  <option value="Inactive">{translateStatus("Inactive")}</option>
                 </select>
               </div>
               <div className="add-device-form-group">
@@ -126,18 +246,15 @@ const EditDevicePage = () => {
                 />
               </div>
               <div className="add-device-form-group">
-                <label>Tipe Kamera *</label>
+              <label>Stream Path *</label>
                 <span>:</span>
-                <select
-                  name="cameraType"
-                  value={formData.cameraType}
+                <input
+                  type="text"
+                  name="streamPath"
+                  value={formData.streamPath}
                   onChange={handleInputChange}
                   required
-                >
-                  <option value="">Pilih Tipe</option>
-                  <option value="PTZ">PTZ</option>
-                  <option value="Fixed">Fixed</option>
-                </select>
+                />
               </div>
               <div className="add-device-form-group">
                 <label>Area *</label>
@@ -149,8 +266,9 @@ const EditDevicePage = () => {
                   required
                 >
                   <option value="">Pilih Area</option>
-                  <option value="Customer Service">Customer Service</option>
-                  <option value="Lobby Utama">Lobby Utama</option>
+                  {areas.map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+                  ))}
                 </select>
               </div>
               <div className="add-device-form-group">
@@ -164,7 +282,7 @@ const EditDevicePage = () => {
                 />
               </div>
               <div className="add-device-form-group">
-                <label>Password</label>
+                <label>Kata Sandi Baru</label>
                 <span>:</span>
                 <input
                   type="password"
@@ -174,7 +292,7 @@ const EditDevicePage = () => {
                 />
               </div>
               <div className="add-device-form-group">
-                <label>Deskripsi</label>
+                <label>Deksripsi</label>
                 <span>:</span>
                 <textarea
                   name="description"
@@ -182,9 +300,12 @@ const EditDevicePage = () => {
                   onChange={handleInputChange}
                 ></textarea>
               </div>
+              <p className="small-text">
+                * Nama CCTV: Lokasi spesifik di area tersebut (contoh: Ruang 4002)
+              </p>
               <div className="add-device-form-group">
-                <button type="submit" className="add-device-submit-button">
-                  Simpan
+                <button type="submit" className="add-device-submit-button" disabled={isSaving}>
+                  {isSaving ? "Menyimpan..." : "Tersimpan"}
                 </button>
               </div>
             </form>

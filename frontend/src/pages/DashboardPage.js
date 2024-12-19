@@ -1,16 +1,21 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import "../styles/DashboardPage.css";
 
 const DashboardPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [selectedArea, setSelectedArea] = useState("Semua");
-  const [selectedBox, setSelectedBox] = useState("Label for Box 1");
+  const [selectedArea, setSelectedArea] = useState("Semua Area");
+  const [selectedBox, setSelectedBox] = useState("");
   const areaButtonsRef = useRef(null);
   const rectangleRef = useRef(null);
+  const [areaButtons, setAreaButtons] = useState(["Semua Area"]);
+  const [areaCount, setAreaCount] = useState(0);
+  const [cctvCount, setCctvCount] = useState(0);
+  const [devices, setDevices] = useState([]);
 
-  // Get username from localStorage
   const userSession = JSON.parse(localStorage.getItem("userSession"));
   const username = userSession ? userSession.username : "Guest";
 
@@ -43,6 +48,79 @@ const DashboardPage = () => {
     document.addEventListener("touchend", onMouseUp);
   };
 
+  const handleBoxClick = (boxLabel) => {
+    setSelectedBox(boxLabel);
+    if (rectangleRef.current) {
+      rectangleRef.current.scrollIntoView({ behavior: "smooth" });
+    } else {
+      console.warn("Referensi persegi panjang adalah null. Periksa apakah elemen tersebut ada.");
+    }
+  };
+
+  useEffect(() => {
+    const areasCollectionRef = collection(db, "areas");
+    const devicesCollectionRef = collection(db, "devices");
+  
+    const fetchedAreas = new Set();
+  
+    const unsubscribeAreas = onSnapshot(
+      areasCollectionRef,
+      (snapshot) => {
+        snapshot.docs.forEach((doc) => fetchedAreas.add(doc.data().areaName));
+        updateAreaButtons();
+      },
+      (error) => {
+        console.error("Kesalahan saat mengambil area:", error.message);
+      }
+    );
+  
+    const unsubscribeDevices = onSnapshot(
+      devicesCollectionRef,
+      (snapshot) => {
+        const devicesData = snapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((device) => device.status === "Active"); // Only keep devices with active status
+  
+        setDevices(devicesData);
+        setCctvCount(devicesData.length);
+  
+        // Set the default selectedBox to the first active device
+        if (devicesData.length > 0) {
+          setSelectedBox(devicesData[0].cameraName || devicesData[0].id);
+        } else {
+          setSelectedBox("Tidak ada perangkat aktif di semua area.");
+        }
+  
+        devicesData.forEach((device) => fetchedAreas.add(device.area));
+        updateAreaButtons();
+      },
+      (error) => {
+        console.error("Terjadi kesalahan saat mengambil perangkat:", error.message);
+      }
+    );
+  
+    const updateAreaButtons = () => {
+      const uniqueAreas = ["Semua Area", ...Array.from(fetchedAreas)];
+      setAreaButtons(uniqueAreas);
+      setAreaCount(uniqueAreas.length - 1);
+    };
+  
+    return () => {
+      unsubscribeAreas();
+      unsubscribeDevices();
+    };
+  }, []);        
+
+  // Filter devices by selected area
+  const filteredDevices =
+  selectedArea === "Semua Area"
+    ? devices
+    : devices.filter((device) => device.area === selectedArea);
+
+  // Static card data, update "Area" card's number dynamically
   const cardData = [
     {
       icon: (
@@ -65,8 +143,8 @@ const DashboardPage = () => {
           />
         </svg>
       ),
-      number: 7,
-      label: "CCTV",
+      number: cctvCount,
+      label: "Perangkat CCTV",
     },
     {
       icon: (
@@ -77,7 +155,7 @@ const DashboardPage = () => {
           />
         </svg>
       ),
-      number: 3,
+      number: areaCount,
       label: "Area",
     },
     {
@@ -91,20 +169,6 @@ const DashboardPage = () => {
       number: 15,
       label: "Mahasiswa",
     },
-  ];
-
-  const handleBoxClick = (boxLabel) => {
-    setSelectedBox(boxLabel); 
-    if (rectangleRef.current) {
-      rectangleRef.current.scrollIntoView({ behavior: "smooth" }); 
-    } else {
-      console.warn("Rectangle ref is null. Check if the element exists.");
-    }
-  };  
-
-  const areaButtons = [
-    "Semua", "Area 1", "Area 2", "Area 3", "Area 4", 
-    "Area 5", "Area 6", "Area 7", "Area 8", "Area 9", "Area 10"
   ];
 
   const detectedInfoData = new Array(6).fill({
@@ -132,8 +196,10 @@ const DashboardPage = () => {
               setSelectedArea={setSelectedArea}
               areaButtonsRef={areaButtonsRef}
               handleMouseDrag={handleMouseDrag}
-              selectedBox={selectedBox} 
-              handleBoxClick={handleBoxClick} 
+              rectangleRef={rectangleRef}
+              devices={filteredDevices}
+              handleBoxClick={handleBoxClick}
+              selectedBox={selectedBox}
             />
             <RightColumn detectedInfoData={detectedInfoData} />
           </div>
@@ -156,46 +222,64 @@ const DashboardCard = ({ card }) => (
 );
 
 const LeftColumn = ({
-  areaButtons, selectedArea, setSelectedArea, areaButtonsRef,
-  handleMouseDrag, rectangleRef, selectedBox, handleBoxClick
+  areaButtons,
+  selectedArea,
+  setSelectedArea,
+  areaButtonsRef,
+  handleMouseDrag,
+  rectangleRef,
+  devices,
+  handleBoxClick,
+  selectedBox,
 }) => (
   <div className="dashboard-column left-column">
-    <div
-      className="area-buttons"
-      ref={areaButtonsRef}
-      onMouseDown={handleMouseDrag}
-      onTouchStart={handleMouseDrag}
-    >
-      {areaButtons.map((area) => (
-        <button
-          key={area}
-          className={`area-button ${selectedArea === area ? "selected" : ""}`}
-          onClick={() => setSelectedArea(area)}
-        >
-          {area}
-        </button>
-      ))}
-    </div>
-    <div className="empty-rectangle-wrapper">
-      <div className="rectangle-label">{selectedBox || "Empty Rectangle Label"}</div>
-      <div className="empty-rectangle" ref={rectangleRef}></div>
-    </div>
-    <div className="scrollable-boxes">
-      {[...Array(8)].map((_, index) => (
-        <div
-          className="scroll-box-wrapper"
-          key={index}
-          onClick={() => handleBoxClick(`Label for Box ${index + 1}`)}
-        >
-          <div className="scroll-box">
-            <div className="scroll-box-content"></div>
-          </div>
-          <div className="scroll-box-label">Label for Box {index + 1}</div>
+      {/* Area Buttons */}
+      <div
+        className="area-buttons"
+        ref={areaButtonsRef}
+        onMouseDown={handleMouseDrag}
+        onTouchStart={handleMouseDrag}
+      >
+        {areaButtons.map((area) => (
+          <button
+            key={area}
+            className={`area-button ${selectedArea === area ? "selected" : ""}`}
+            onClick={() => setSelectedArea(area)}
+          >
+            {area}
+          </button>
+        ))}
+      </div>
+
+      {/* Rectangle Section */}
+      <div className="empty-rectangle-wrapper">
+        <div className="rectangle-label">
+          {devices.length > 0 ? selectedBox : ""}
         </div>
-      ))}
+        {devices.length > 0 && <div className="empty-rectangle" ref={rectangleRef}></div>}
+      </div>
+
+      {/* Scrollable Boxes */}
+      <div className="scrollable-boxes">
+        {devices.length > 0 ? (
+          devices.map((device, index) => (
+            <div
+              className="scroll-box-wrapper"
+              key={index}
+              onClick={() => handleBoxClick(device.cameraName || device.id)}
+            >
+              <div className="scroll-box">
+                <div className="scroll-box-content"></div>
+              </div>
+              <div className="scroll-box-label">{device.cameraName || device.id}</div>
+            </div>
+          ))
+        ) : (
+          <div className="no-cameras-message">Kamera tidak tersedia di area ini.</div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 
 const RightColumn = ({ detectedInfoData }) => (
   <div className="dashboard-column right-column">

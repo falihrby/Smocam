@@ -109,7 +109,6 @@
   background-color: #f9f9f9;
   color: #666;
   font-size: 0.875rem;
-  pointer-events: none; /* Disable interaction */
 }
 
 /* Error Message */

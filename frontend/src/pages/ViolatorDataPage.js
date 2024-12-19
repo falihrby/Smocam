@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Dropdown from "../components/Dropdown";
@@ -13,6 +15,7 @@ const ViolatorDataPage = () => {
   const [selectedCCTV, setSelectedCCTV] = useState("Semua");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [cctvs, setCctvs] = useState(["Semua"]); 
   const rowsPerPage = 10;
 
   const toggleSidebar = () => setSidebarOpen((prevState) => !prevState);
@@ -22,6 +25,24 @@ const ViolatorDataPage = () => {
     { no: 2, id: "11210910000012", dateTime: "2024-12-02 15:12:30", name: "Jane Smith", class: "2021", department: "Computer Science", faculty: "Engineering", area: "Zone B", cctv: "CCTV-2", image: "" },
     { no: 3, id: "11210910000010", dateTime: "2024-12-03 11:45:00", name: "Alice Johnson", class: "2021", department: "Information Technology", faculty: "Engineering", area: "Zone A", cctv: "CCTV-2", image: "" },
   ];
+
+  // Fetch CCTV data from Firestore
+  useEffect(() => {
+    const devicesCollectionRef = collection(db, "devices");
+
+    const unsubscribe = onSnapshot(
+      devicesCollectionRef,
+      (snapshot) => {
+        const cctvNames = snapshot.docs.map((doc) => doc.data().cameraName);
+        setCctvs(["Semua", ...new Set(cctvNames)]); // Add unique CCTV names
+      },
+      (error) => {
+        console.error("Error fetching CCTV data:", error);
+      }
+    );
+
+    return () => unsubscribe(); // Cleanup Firestore listener
+  }, []);
 
   // Convert a date string to a Date object
   const parseDate = (dateString) => new Date(dateString.split(" ")[0]);
@@ -115,7 +136,7 @@ const ViolatorDataPage = () => {
               />
               <Dropdown
                 label="CCTV"
-                options={["Semua", "CCTV-1", "CCTV-2"]}
+                options={cctvs}
                 selectedValue={selectedCCTV}
                 onChange={setSelectedCCTV}
               />
