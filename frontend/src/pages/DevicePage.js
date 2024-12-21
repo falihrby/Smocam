@@ -214,7 +214,7 @@ const DevicePage = () => {
               {Array.from({ length: totalPages }, (_, index) => (
                 <button
                   key={index}
-                  className={currentPage === index + 1 ? "active" : ""}
+                  className={`pagination-button ${currentPage === index + 1 ? "active" : ""}`}
                   onClick={() => setCurrentPage(index + 1)}
                 >
                   {index + 1}

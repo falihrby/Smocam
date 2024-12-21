@@ -35,6 +35,7 @@ const EditDevicePage = () => {
   const [popupMessage, setPopupMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [areas, setAreas] = useState([]);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   // Toggle sidebar visibility
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
@@ -284,12 +285,20 @@ const EditDevicePage = () => {
               <div className="add-device-form-group">
                 <label>Kata Sandi Baru</label>
                 <span>:</span>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={isPasswordVisible ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                  />
+                  <img
+                    src={isPasswordVisible ? "/icon/closeeye-icon.svg" : "/icon/eye-icon.svg"}
+                    alt="Toggle Password Visibility"
+                    className="password-toggle-icon"
+                    onClick={() => setIsPasswordVisible((prev) => !prev)}
+                  />
+                </div>
               </div>
               <div className="add-device-form-group">
                 <label>Deksripsi</label>

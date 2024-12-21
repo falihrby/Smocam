@@ -101,14 +101,14 @@
 
 .add-account-page-form-group input,
 .add-account-page-form-group select {
-  flex: 1; 
+  flex: 1;
   color: #343a40;
-  width: 100%; 
-  padding: 8px; 
-  box-sizing: border-box; 
-  border: 1px solid #ccc; 
-  border-radius: 4px; 
-  font-size: 0.875rem; 
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.875rem;
 }
 
 .add-account-page-form-group input:focus,
@@ -130,4 +130,23 @@
 
 .add-account-page-submit-button:hover {
   background-color: #4b525a;
+}
+
+.password-input-wrapper {
+  position: relative; /* Ensures icon is positioned relative to the input wrapper */
+}
+
+.password-input-wrapper input {
+  width: 100%; /* Ensures the input field spans its container */
+  padding-right: 40px; /* Leaves space for the toggle icon */
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 10px; /* Aligns icon to the right edge of the input */
+  top: 50%; /* Centers the icon vertically within the input */
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }

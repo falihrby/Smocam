@@ -31,6 +31,10 @@ const AddAccountPage = () => {
     confirmPassword: "",
   });
 
+  // Password visibility toggles
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+
   useEffect(() => {
     const generateAccountId = async () => {
       try {
@@ -210,24 +214,40 @@ const AddAccountPage = () => {
               <div className="add-account-page-form-group">
                 <label>Kata Sandi *</label>
                 <span>:</span>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={isPasswordVisible ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <img
+                    src={isPasswordVisible ? "/icon/closeeye-icon.svg" : "/icon/eye-icon.svg"}
+                    alt="Toggle Password Visibility"
+                    className="password-toggle-icon"
+                    onClick={() => setIsPasswordVisible((prev) => !prev)}
+                  />
+                </div>
               </div>
               <div className="add-account-page-form-group">
                 <label>Konfirmasi Kata Sandi *</label>
                 <span>:</span>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  required
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={isConfirmPasswordVisible ? "text" : "password"}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <img
+                    src={isConfirmPasswordVisible ? "/icon/closeeye-icon.svg" : "/icon/eye-icon.svg"}
+                    alt="Toggle Confirm Password Visibility"
+                    className="password-toggle-icon"
+                    onClick={() => setIsConfirmPasswordVisible((prev) => !prev)}
+                  />
+                </div>
               </div>
               <div className="add-account-page-form-group">
                 <button

@@ -6,7 +6,7 @@ import { db } from "../firebaseConfig";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import PopupNotification from "../components/PopupNotification";
-import "../styles/AddAccountPage.css"; // Reuse styles from AddAccountPage
+import "../styles/AddAccountPage.css"; 
 
 const EditAccountPage = () => {
   const navigate = useNavigate();
@@ -31,6 +31,10 @@ const EditAccountPage = () => {
     role: "",
     status: "Active",
   };
+
+  // Password visibility toggles
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
   // State to manage the form data
   const [formData, setFormData] = useState({ ...accountData, newPassword: "", confirmPassword: "" });
@@ -206,22 +210,38 @@ const EditAccountPage = () => {
               <div className="add-account-page-form-group">
                 <label>Kata Sandi Baru</label>
                 <span>:</span>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleInputChange}
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={isPasswordVisible ? "text" : "password"}
+                    name="newPassword"
+                    value={formData.newPassword}
+                    onChange={handleInputChange}
+                  />
+                  <img
+                    src={isPasswordVisible ? "/icon/closeeye-icon.svg" : "/icon/eye-icon.svg"}
+                    alt="Toggle Password Visibility"
+                    className="password-toggle-icon"
+                    onClick={() => setIsPasswordVisible((prev) => !prev)}
+                  />
+                </div>
               </div>
               <div className="add-account-page-form-group">
                 <label>Konfirmasi Kata Sandi Baru</label>
                 <span>:</span>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={isConfirmPasswordVisible ? "text" : "password"}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                  />
+                  <img
+                    src={isConfirmPasswordVisible ? "/icon/closeeye-icon.svg" : "/icon/eye-icon.svg"}
+                    alt="Toggle Confirm Password Visibility"
+                    className="password-toggle-icon"
+                    onClick={() => setIsConfirmPasswordVisible((prev) => !prev)}
+                  />
+                </div>
               </div>
               <div className="add-account-page-form-group">
                 <button

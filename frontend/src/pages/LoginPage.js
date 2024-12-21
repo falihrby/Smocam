@@ -14,7 +14,6 @@ function LoginPage() {
   // Login function using Firestore
   const handleLogin = async () => {
     try {
-      // Step 1: Query Firestore for the user with matching email and password
       const q = query(
         collection(db, "users"),
         where("email", "==", email),
@@ -22,26 +21,25 @@ function LoginPage() {
       );
       const querySnapshot = await getDocs(q);
 
-      // Step 2: Validate query results
       if (!querySnapshot.empty) {
-        const userData = querySnapshot.docs[0].data();
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
 
         if (userData.status !== "Active") {
           setError("Your account is inactive. Please contact the administrator.");
           return;
         }
 
-        // Step 3: Store user session in localStorage
+        const { id } = userDoc; 
         const { username, role, status } = userData;
+
         localStorage.setItem(
           "userSession",
-          JSON.stringify({ email, username, role, status })
+          JSON.stringify({ id, email, username, role, status })
         );
 
-        // Step 4: Navigate to dashboard
         navigate("/dashboard");
       } else {
-        // No matching user found
         setError("Invalid email or password. Please try again.");
       }
     } catch (err) {
@@ -84,7 +82,9 @@ function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           label="Password"
-          icon="/icon/eye-icon.svg"
+          icon="/icon/eye-icon.svg" 
+          toggleIcon="/icon/closeeye-icon.svg" 
+          iconColor="gray"
         />
         <button onClick={handleLogin} className="login-button">
           Login

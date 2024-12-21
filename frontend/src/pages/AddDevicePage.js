@@ -15,6 +15,7 @@ const AddDevicePage = () => {
   const [popupMessage, setPopupMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [areas, setAreas] = useState([]);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const userSession = JSON.parse(localStorage.getItem("userSession"));
   const username = userSession ? userSession.username : "Guest";
@@ -244,7 +245,20 @@ const AddDevicePage = () => {
               <div className="add-device-form-group">
                 <label>Kata Sandi *</label>
                 <span>:</span>
-                <input type="password" name="password" value={formData.password} onChange={handleInputChange} />
+                <div className="password-input-wrapper">
+                  <input
+                    type={isPasswordVisible ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                  />
+                  <img
+                    src={isPasswordVisible ? "/icon/closeeye-icon.svg" : "/icon/eye-icon.svg"}
+                    alt="Toggle Password Visibility"
+                    onClick={() => setIsPasswordVisible((prev) => !prev)}
+                    className="password-toggle-icon"
+                  />
+                </div>
               </div>
               <div className="add-device-form-group">
                 <label>Deksripsi</label>

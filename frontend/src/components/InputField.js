@@ -1,15 +1,25 @@
 import React, { useState } from "react";
 import "../styles/InputField.css";
 
-function InputField({ type, placeholder, value, onChange, label, icon, toggleIcon, iconColor }) {
+function InputField({ 
+    type, 
+    placeholder, 
+    value, 
+    onChange, 
+    label, 
+    icon, 
+    toggleIcon, 
+    iconColor 
+}) {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const handleToggleVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
     };
 
+    // Determine the correct input type (text/password) and which icon to display
     const inputType = type === "password" && isPasswordVisible ? "text" : type;
-    const iconToShow = isPasswordVisible ? toggleIcon : icon;
+    const iconToShow = type === "password" ? (isPasswordVisible ? toggleIcon : icon) : icon;
 
     return (
         <div className="input-field">

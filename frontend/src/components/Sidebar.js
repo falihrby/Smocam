@@ -1,17 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import classNames from "classnames";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import "../styles/SideBar.css";
 
 const Sidebar = ({ isOpen }) => {
   const location = useLocation();
   const [activeItem, setActiveItem] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const handleItemClick = (itemName) => {
     setActiveItem((prevItem) => (prevItem === itemName ? "" : itemName));
   };
 
   const isActive = (path) => location.pathname === path;
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const userSession = JSON.parse(localStorage.getItem("userSession"));
+
+      if (userSession?.id) {
+        const userDoc = await getDoc(doc(db, "users", userSession.id));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          if (userData.role === "Admin" && userData.status === "Active") {
+            setIsAdmin(true);
+          }
+        }
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   return (
     <div className={classNames("sidebar", { "is-open": isOpen })}>
@@ -95,16 +116,18 @@ const Sidebar = ({ isOpen }) => {
             )}
           </li>
 
-          {/* Account Management */}
-          <li className="nav-item">
-            <a
-              href="/account"
-              className={classNames("nav-link", { active: isActive("/account") })}
-            >
-              <AccountIcon />
-              Kelola Akun
-            </a>
-          </li>
+          {/* Account Management (Admins Only) */}
+          {isAdmin && (
+            <li className="nav-item">
+              <a
+                href="/account"
+                className={classNames("nav-link", { active: isActive("/account") })}
+              >
+                <AccountIcon />
+                Kelola Akun
+              </a>
+            </li>
+          )}
 
           {/* Logout */}
           <li className="nav-item">
