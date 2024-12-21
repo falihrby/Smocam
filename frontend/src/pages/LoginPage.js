@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebaseConfig";
@@ -11,9 +11,20 @@ function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Redirect logged-in users to the dashboard
+  useEffect(() => {
+    const userSession = localStorage.getItem("userSession");
+    if (userSession) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   // Login function using Firestore
   const handleLogin = async () => {
     try {
+      setError(""); // Reset error message
+
+      // Query Firestore for matching email and password
       const q = query(
         collection(db, "users"),
         where("email", "==", email),
@@ -25,12 +36,14 @@ function LoginPage() {
         const userDoc = querySnapshot.docs[0];
         const userData = userDoc.data();
 
+        // Check if account is active
         if (userData.status !== "Active") {
           setError("Your account is inactive. Please contact the administrator.");
           return;
         }
 
-        const { id } = userDoc; 
+        // Store session in localStorage
+        const { id } = userDoc;
         const { username, role, status } = userData;
 
         localStorage.setItem(
@@ -38,6 +51,7 @@ function LoginPage() {
           JSON.stringify({ id, email, username, role, status })
         );
 
+        // Redirect to dashboard
         navigate("/dashboard");
       } else {
         setError("Invalid email or password. Please try again.");
@@ -82,8 +96,8 @@ function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           label="Password"
-          icon="/icon/eye-icon.svg" 
-          toggleIcon="/icon/closeeye-icon.svg" 
+          icon="/icon/eye-icon.svg"
+          toggleIcon="/icon/closeeye-icon.svg"
           iconColor="gray"
         />
         <button onClick={handleLogin} className="login-button">

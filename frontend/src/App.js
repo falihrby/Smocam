@@ -1,8 +1,10 @@
+// File: src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import AuthGuard from "./components/AuthGuard"; // Import AuthGuard
 import DashboardPage from "./pages/DashboardPage";
 import ReportPage from "./pages/ReportPage";
-import RekamanPage from "./pages/RekamanPage"; // RekamanPage is imported and now used
+import RekamanPage from "./pages/RekamanPage";
 import PrintEvidencePage from "./pages/PrintEvidencePage";
 import ViolatorDataPage from "./pages/ViolatorDataPage";
 import DetailViolatorPage from "./pages/DetailViolatorPage";
@@ -22,44 +24,149 @@ import "./App.css";
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <Routes>
-          {/* Authentication */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<LoginPage />} />
+      <Routes>
+        {/* Redirect Root to Login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* Dashboard */}
-          <Route path="/dashboard" element={<DashboardPage />} />
+        {/* Login Route */}
+        <Route
+          path="/login"
+          element={<LoginPage />}
+        />
 
-          {/* Reports */}
-          <Route path="/report" element={<ReportPage />} />
-          <Route path="/rekaman" element={<RekamanPage />} /> {/* RekamanPage Route Added */}
-          <Route path="/resume" element={<ResumePage />} />
-          <Route path="/print-bukti" element={<PrintEvidencePage />} />
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <AuthGuard>
+              <DashboardPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/report"
+          element={
+            <AuthGuard>
+              <ReportPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/rekaman"
+          element={
+            <AuthGuard>
+              <RekamanPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/resume"
+          element={
+            <AuthGuard>
+              <ResumePage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/print-bukti"
+          element={
+            <AuthGuard>
+              <PrintEvidencePage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/violator-data"
+          element={
+            <AuthGuard>
+              <ViolatorDataPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/details"
+          element={
+            <AuthGuard>
+              <DetailViolatorPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/devices"
+          element={
+            <AuthGuard>
+              <DevicePage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/device-add"
+          element={
+            <AuthGuard>
+              <AddDevicePage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/device-view"
+          element={
+            <AuthGuard>
+              <ViewDevicePage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/device-edit"
+          element={
+            <AuthGuard>
+              <EditDevicePage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/account"
+          element={
+            <AuthGuard>
+              <AccountPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/account-add"
+          element={
+            <AuthGuard>
+              <AddAccountPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/account-edit"
+          element={
+            <AuthGuard>
+              <EditAccountPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/account-view/:id"
+          element={
+            <AuthGuard>
+              <ViewAccountPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/areas"
+          element={
+            <AuthGuard>
+              <AreaPage />
+            </AuthGuard>
+          }
+        />
 
-          {/* Violators */}
-          <Route path="/violator-data" element={<ViolatorDataPage />} />
-          <Route path="/details" element={<DetailViolatorPage />} />
-
-          {/* Devices */}
-          <Route path="/devices" element={<DevicePage />} />
-          <Route path="/device-add" element={<AddDevicePage />} />
-          <Route path="/device-view" element={<ViewDevicePage />} />
-          <Route path="/device-edit" element={<EditDevicePage />} />
-
-          {/* Accounts */}
-          <Route path="/account" element={<AccountPage />} />
-          <Route path="/account-add" element={<AddAccountPage />} />
-          <Route path="/account-edit" element={<EditAccountPage />} />
-          <Route path="/account-view/:id" element={<ViewAccountPage />} />
-
-          {/* Areas */}
-          <Route path="/areas" element={<AreaPage />} />
-
-          {/* 404 Page */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </div>
+        {/* Fallback Route to Login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
     </Router>
   );
 }

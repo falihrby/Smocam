@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import classNames from "classnames";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
@@ -7,6 +7,7 @@ import "../styles/SideBar.css";
 
 const Sidebar = ({ isOpen }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -15,6 +16,12 @@ const Sidebar = ({ isOpen }) => {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    // Clear session and redirect to login
+    localStorage.removeItem("userSession");
+    navigate("/login");
+  };
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -130,14 +137,11 @@ const Sidebar = ({ isOpen }) => {
           )}
 
           {/* Logout */}
-          <li className="nav-item">
-            <a
-              href="/login"
-              className={classNames("nav-link", { active: isActive("/login") })}
-            >
+          <li className="nav-item" onClick={handleLogout}>
+            <div className="nav-link">
               <LogoutIcon />
               Keluar
-            </a>
+            </div>
           </li>
         </ul>
       </nav>
