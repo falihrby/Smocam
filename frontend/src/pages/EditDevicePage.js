@@ -19,7 +19,6 @@ const EditDevicePage = () => {
     cameraPort: "",
     status: "Active",
     ipAddress: "",
-    streamPath: "",
     area: "",
     username: "",
     description: "",
@@ -86,7 +85,6 @@ const EditDevicePage = () => {
       !formData.cameraName ||
       !formData.cameraPort ||
       !formData.ipAddress ||
-      !formData.streamPath ||
       !formData.area
     ) {
       setPopupMessage("Harap isi semua kolom yang berbintang.");
@@ -143,7 +141,6 @@ const EditDevicePage = () => {
         cameraPort: formData.cameraPort,
         status: formData.status,
         ipAddress: formData.ipAddress,
-        streamPath: formData.streamPath,
         area: formData.area,
         username: formData.username,
         description: formData.description,
@@ -242,17 +239,6 @@ const EditDevicePage = () => {
                   type="text"
                   name="ipAddress"
                   value={formData.ipAddress}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="add-device-form-group">
-              <label>Stream Path *</label>
-                <span>:</span>
-                <input
-                  type="text"
-                  name="streamPath"
-                  value={formData.streamPath}
                   onChange={handleInputChange}
                   required
                 />

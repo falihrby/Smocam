@@ -20,7 +20,6 @@ const ViewDevicePage = () => {
     cameraPort: "",
     status: "Active",
     ipAddress: "",
-    streamPath: "",
     area: "",
     username: "",
     description: "",
@@ -96,7 +95,6 @@ const ViewDevicePage = () => {
                 { label: "Port Kamera", value: deviceData.cameraPort },
                 { label: "Status", value: translateStatus(deviceData.status) },
                 { label: "IP Address", value: deviceData.ipAddress },
-                { label: "Stream Path", value: deviceData.streamPath },
                 { label: "Area", value: deviceData.area },
                 { label: "Username", value: deviceData.username },
                 {

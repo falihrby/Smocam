@@ -26,7 +26,6 @@ const AddDevicePage = () => {
     cameraPort: "",
     status: "Active",
     ipAddress: "",
-    streamPath: "", // Replaces cameraType
     area: "",
     username: "",
     password: "",
@@ -113,7 +112,6 @@ const AddDevicePage = () => {
       !formData.cameraName ||
       !formData.cameraPort ||
       !formData.ipAddress ||
-      !formData.streamPath || // Validates streamPath
       !formData.area ||
       !formData.username ||
       !formData.password ||
@@ -158,7 +156,7 @@ const AddDevicePage = () => {
         updatedAt: new Date(),
       });
 
-      setPopupMessage("Device successfully added!");
+      setPopupMessage("Perangkat Berhasil Ditambah!");
       setIsPopupOpen(true);
 
       setTimeout(() => {
@@ -221,11 +219,6 @@ const AddDevicePage = () => {
                 <label>IP Address *</label>
                 <span>:</span>
                 <input type="text" name="ipAddress" value={formData.ipAddress} onChange={handleInputChange} />
-              </div>
-              <div className="add-device-form-group">
-                <label>Stream Path *</label>
-                <span>:</span>
-                <input type="text" name="streamPath" value={formData.streamPath} onChange={handleInputChange} />
               </div>
               <div className="add-device-form-group">
                 <label>Area *</label>

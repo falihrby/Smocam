@@ -15,6 +15,7 @@ const DashboardPage = () => {
   const [areaCount, setAreaCount] = useState(0);
   const [cctvCount, setCctvCount] = useState(0);
   const [devices, setDevices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const userSession = JSON.parse(localStorage.getItem("userSession"));
   const username = userSession ? userSession.username : "Guest";
@@ -89,9 +90,9 @@ const DashboardPage = () => {
   
         // Set the default selectedBox to the first active device
         if (devicesData.length > 0) {
-          setSelectedBox(devicesData[0].cameraName || devicesData[0].id);
+          setSelectedBox(devicesData[0]);
         } else {
-          setSelectedBox("Tidak ada perangkat aktif di semua area.");
+          setSelectedBox(null);
         }
   
         devicesData.forEach((device) => fetchedAreas.add(device.area));
@@ -112,13 +113,106 @@ const DashboardPage = () => {
       unsubscribeAreas();
       unsubscribeDevices();
     };
-  }, []);        
+  }, []);
+  
+  useEffect(() => {
+    if (!selectedBox || typeof selectedBox !== "object" || !rectangleRef.current) return;
+    setLoading(true);
+  
+    const fetchWebRTCStream = async () => {
+      try {
+        const pc = new RTCPeerConnection({
+          iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        });
+  
+        const videoElement = rectangleRef.current;
+  
+        pc.ontrack = (event) => {
+          videoElement.srcObject = event.streams[0];
+          setLoading(false);
+        };
+  
+        pc.addTransceiver("video", { direction: "recvonly" });
+  
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        if (!pc.localDescription) {
+          console.error("Local description is null");
+          return;
+        }
+  
+        console.log("Sending to backend:", {
+          sdp: pc.localDescription?.sdp,
+          type: pc.localDescription?.type,
+          rtspUrl: selectedBox?.rtspUrl,
+        });
+        
+        const response = await fetch("http://localhost:5050/offer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sdp: pc.localDescription?.sdp || "dummy_sdp",
+            type: pc.localDescription?.type || "offer",
+            rtspUrl: selectedBox?.rtspUrl || "rtsp://test",
+          }),          
+        });            
+  
+        const answer = await response.json();
+  
+        await pc.setRemoteDescription(new RTCSessionDescription(answer));
+      } catch (error) {
+        console.error("Gagal setup WebRTC:", error);
+        setLoading(false);
+      }
+    };
+  
+    fetchWebRTCStream();
+  }, [selectedArea, selectedBox]);    
+
+  useEffect(() => {
+    const devicesCollectionRef = collection(db, "devices");
+
+    setLoading(true);
+  
+    const unsubscribeDevices = onSnapshot(
+      devicesCollectionRef,
+      (snapshot) => {
+        const devicesData = snapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((device) => device.status === "Active");
+  
+        setDevices(devicesData);
+        setCctvCount(devicesData.length);
+  
+        if (devicesData.length > 0) {
+          const firstDevice = devicesData[0];
+          setSelectedBox(firstDevice);
+  
+          // Set the RTSP URL dynamically in the environment
+          fetch("http://localhost:5050/api/set-rtsp-url", {
+            method: "POST",
+            body: JSON.stringify({ rtspUrl: firstDevice.rtspUrl }),
+            headers: { "Content-Type": "application/json" },
+          });
+        } else {
+          setSelectedBox(null);
+        }
+      },
+      (error) => {
+        console.error("Error fetching devices:", error.message);
+        setLoading(false);
+      }
+    );
+  
+    return () => unsubscribeDevices();
+  }, []);   
 
   // Filter devices by selected area
-  const filteredDevices =
-  selectedArea === "Semua Area"
-    ? devices
-    : devices.filter((device) => device.area === selectedArea);
+  const filteredDevices = selectedArea === "Semua Area" ? devices : devices.filter(device => device.area === selectedArea);
 
   // Static card data, update "Area" card's number dynamically
   const cardData = [
@@ -198,6 +292,7 @@ const DashboardPage = () => {
               handleMouseDrag={handleMouseDrag}
               rectangleRef={rectangleRef}
               devices={filteredDevices}
+              loading={loading}  
               handleBoxClick={handleBoxClick}
               selectedBox={selectedBox}
             />
@@ -229,6 +324,7 @@ const LeftColumn = ({
   handleMouseDrag,
   rectangleRef,
   devices,
+  loading,
   handleBoxClick,
   selectedBox,
 }) => (
@@ -253,31 +349,39 @@ const LeftColumn = ({
 
       {/* Rectangle Section */}
       <div className="empty-rectangle-wrapper">
-        <div className="rectangle-label">
-          {devices.length > 0 ? selectedBox : ""}
-        </div>
-        {devices.length > 0 && <div className="empty-rectangle" ref={rectangleRef}></div>}
+        {selectedBox && <div className="rectangle-label">{selectedBox.cameraName}</div>}
+
+        {selectedBox ? (
+          <video
+            id="cctv-stream"
+            autoPlay
+            playsInline
+            controls
+            ref={rectangleRef}
+            style={{ width: "100%", height: "auto", background: "#000" }}
+          ></video>
+        ) : (
+          <div className="no-cameras-message">Kamera tidak tersedia di area ini.</div>
+        )}
       </div>
 
-      {/* Scrollable Boxes */}
-      <div className="scrollable-boxes">
-        {devices.length > 0 ? (
-          devices.map((device, index) => (
+      {/* Scrollable Boxes - Only show when more than 1 device exists */}
+      {devices.length > 1 && (
+        <div className="scrollable-boxes">
+          {devices.map((device, index) => (
             <div
               className="scroll-box-wrapper"
               key={index}
-              onClick={() => handleBoxClick(device.cameraName || device.id)}
+              onClick={() => handleBoxClick(device)}
             >
               <div className="scroll-box">
                 <div className="scroll-box-content"></div>
               </div>
               <div className="scroll-box-label">{device.cameraName || device.id}</div>
             </div>
-          ))
-        ) : (
-          <div className="no-cameras-message">Kamera tidak tersedia di area ini.</div>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 
