@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { fetchWebRTCStream } from './webrtc'; 
+import { fetchWebRTCStream } from '../pages/webrtc.js';
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import Sidebar from "../components/Sidebar";
@@ -73,8 +73,13 @@ const DashboardPage = () => {
   
     const unsubscribeDevices = onSnapshot(devicesCollectionRef, (snapshot) => {
       const devicesData = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((device) => device.status === "Active");
+        .map((doc) => {
+          const d = doc.data();
+          // bangun RTSP URL sekarang
+          const rtspUrl = `rtsp://${d.username}:${d.password}@${d.ipAddress}:${d.cameraPort}/Streaming/Channels/101`;
+          return { id: doc.id, ...d, rtspUrl };
+        })
+        .filter((device) => device.status === "Active");    
     
       setDevices(devicesData);
       setCctvCount(devicesData.length);
@@ -130,12 +135,11 @@ const DashboardPage = () => {
   }, [selectedBox]);    
   
   useEffect(() => {
-    if (!selectedBox || !rectangleRef.current) return;
-  
+    if (!selectedBox?.rtspUrl || !rectangleRef.current) return;
     setLoading(true);
     fetchWebRTCStream(rectangleRef.current, selectedBox.rtspUrl)
-      .then(() => setLoading(false))
-      .catch(() => setLoading(false));
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
   }, [selectedBox]);
 
   // Filter devices by selected area

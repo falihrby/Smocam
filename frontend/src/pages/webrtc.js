@@ -1,45 +1,32 @@
 import React, { useEffect, useState } from 'react';
 
 // Function to fetch WebRTC stream
-export const fetchWebRTCStream = async (videoElement, rtspUrl) => {
-  try {
-    const pc = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
-    });
+export async function fetchWebRTCStream(videoElement, rtspUrl) {
+  const pc = new RTCPeerConnection({
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+  });
+  pc.addTransceiver('video', { direction: 'recvonly' });
 
-    pc.addTransceiver('video', { direction: 'recvonly' });
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
 
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
+  const res = await fetch('http://localhost:5050/offer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sdp: offer.sdp,
+      type: offer.type,
+      rtspUrl,
+    }),
+  });
+  if (!res.ok) throw new Error(`Offer failed: ${res.statusText}`);
+  const answer = await res.json();
+  await pc.setRemoteDescription(answer);
 
-    const response = await fetch('http://localhost:5050/offer', {
-      method: 'POST',
-      body: JSON.stringify({ sdp: offer.sdp, type: offer.type }),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!response.ok) {
-      console.error('Failed to fetch WebRTC offer:', response.statusText);
-      throw new Error('Failed to fetch WebRTC offer');
-    }
-
-    const answer = await response.json();
-    console.log('Received answer:', answer); // Log the received answer
-
-    if (!answer.sdp || !answer.type) {
-      throw new Error('Invalid answer received');
-    }
-
-    await pc.setRemoteDescription(new RTCSessionDescription(answer));
-
-    pc.ontrack = (event) => {
-      videoElement.srcObject = event.streams[0];
-    };
-  } catch (err) {
-    console.error('Error fetching WebRTC stream:', err);
-    throw err;
-  }
-};
+  pc.ontrack = (ev) => {
+    videoElement.srcObject = ev.streams[0];
+  };
+}
 
 // Function to create a WebRTC peer connection
 const createPeerConnection = (config = {}) => {
@@ -161,8 +148,17 @@ const WebRTCApp = () => {
     <div>
       <h2>WebRTC Video Communication</h2>
       <div>
-        <video id="localVideo" autoPlay muted style={{ width: '300px', height: 'auto' }}></video>
-        <video id="remoteVideo" autoPlay style={{ width: '300px', height: 'auto' }}></video>
+        <video
+          id="localVideo"
+          autoPlay
+          muted
+          style={{ width: '300px', height: 'auto' }}
+        ></video>
+        <video
+          id="remoteVideo"
+          autoPlay
+          style={{ width: '300px', height: 'auto' }}
+        ></video>
       </div>
       {!isVideoStarted ? (
         <button onClick={handleStartWebRTC}>Start WebRTC</button>
@@ -173,4 +169,5 @@ const WebRTCApp = () => {
   );
 };
 
+// Exporting the WebRTCApp as default
 export default WebRTCApp;
