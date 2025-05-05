@@ -1,113 +1,87 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from aiortc import RTCPeerConnection, RTCSessionDescription
-from aiortc.contrib.media import MediaPlayer
+from aiortc.contrib.media import MediaPlayer, MediaRecorder
 import subprocess
 import json
 import asyncio
+import threading
 
 app = Flask(__name__)
 CORS(app)  # Allow all origins (safe for development)
 
 pcs = set()
 
-# Simpan RTSP URL jika dibutuhkan
-rtsp_url_store = {}
+# Media Player for RTSP Stream
+class MediaPlayerWithRTSP:
+    def __init__(self, rtsp_url):
+        self.rtsp_url = rtsp_url
+        self.process = None
 
-# -------- Set RTSP URL (opsional endpoint frontend) --------
-@app.route("/api/set-rtsp-url", methods=["POST"])
-def set_rtsp_url():
-    data = request.get_json()
-    rtsp_url_store["url"] = data.get("rtspUrl")
-    return jsonify({"message": "RTSP URL saved successfully"})
+    def start(self):
+        # You can use ffmpeg to stream RTSP into a format compatible with WebRTC
+        self.process = subprocess.Popen(
+            ["ffmpeg", "-i", self.rtsp_url, "-f", "avi", "-q:v", "10", "-vcodec", "mpeg4", "pipe:1"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        return self.process.stdout
 
-# -------- RTSP to WebRTC Track --------
-def create_local_tracks(rtsp_url):
-    try:
-        options = {"rtsp_transport": "tcp"}
-        player = MediaPlayer(rtsp_url, format="rtsp", options=options)
-        if player and player.video:
-            return player.video
-        print("[ERROR] RTSP stream has no video track.")
-        return None
-    except Exception as e:
-        print(f"[ERROR] Failed to open RTSP stream: {e}")
-        return None
+    def stop(self):
+        if self.process:
+            self.process.kill()
 
-# -------- WebRTC Offer Handler --------
+player = None
+
+# Signaling for WebRTC
 @app.route("/offer", methods=["POST"])
-def offer():
-    params = request.get_json()
-    print("Received params:", params)
-    if not params or "sdp" not in params or "type" not in params:
-        return jsonify({"error": "Missing required parameters"}), 400
-
-    offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
-    rtsp_url = params.get("rtspUrl") or rtsp_url_store.get("url")
-    if not rtsp_url:
-        return jsonify({"error": "RTSP URL not provided"}), 400
-
+async def offer():
+    offer = request.json
+    offer_sdp = offer["sdp"]
+    peer_id = offer["peer_id"]
     pc = RTCPeerConnection()
     pcs.add(pc)
 
-    async def handle_offer():
-        await pc.setRemoteDescription(offer)
-        video_track = create_local_tracks(rtsp_url)
+    @pc.on("datachannel")
+    def on_datachannel(channel):
+        @channel.on("message")
+        def on_message(message):
+            print(f"Message from {peer_id}: {message}")
 
-        if not video_track:
-            await pc.close()
-            pcs.discard(pc)
-            return None
+    # Answer to offer
+    rtc_session_description = RTCSessionDescription(sdp=offer_sdp, type="offer")
+    await pc.setRemoteDescription(rtc_session_description)
 
-        pc.addTrack(video_track)
-        answer = await pc.createAnswer()
-        await pc.setLocalDescription(answer)
+    # Create answer
+    answer = await pc.createAnswer()
+    await pc.setLocalDescription(answer)
 
-        return {
-            "sdp": pc.localDescription.sdp,
-            "type": pc.localDescription.type
-        }
+    # Return answer to client
+    return jsonify({"sdp": pc.localDescription.sdp, "type": "answer"})
 
-    result = asyncio.run(handle_offer())
 
-    if result is None:
-        return jsonify({"error": "Failed to create video track"}), 500
+@app.route("/start", methods=["POST"])
+def start_rtsp_stream():
+    global player
+    rtsp_url = request.json.get("rtsp_url")
+    if rtsp_url:
+        player = MediaPlayerWithRTSP(rtsp_url)
+        threading.Thread(target=player.start).start()
+        return jsonify({"status": "Streaming started", "rtsp_url": rtsp_url})
+    else:
+        return jsonify({"status": "Error", "message": "RTSP URL is missing!"}), 400
 
-    return jsonify(result)
 
-# -------- RTSP Fetch via Firebase Handler --------
-@app.route("/api/get_rtsp")
-def get_rtsp():
-    area = request.args.get("area")
-    camera = request.args.get("camera")
+@app.route("/stop", methods=["POST"])
+def stop_rtsp_stream():
+    global player
+    if player:
+        player.stop()
+        player = None
+        return jsonify({"status": "Streaming stopped"})
+    else:
+        return jsonify({"status": "Error", "message": "No active stream!"}), 400
 
-    result = subprocess.run(
-        ["python3", "fetch_rtsp.py", area, camera],
-        capture_output=True, text=True
-    )
-
-    if result.returncode != 0:
-        return jsonify({"error": result.stderr}), 500
-
-    try:
-        data = json.loads(result.stdout)
-    except json.JSONDecodeError as e:
-        return jsonify({"error": "Failed to parse RTSP info", "details": str(e)}), 500
-
-    return jsonify(data)
-
-# -------- Shutdown Cleanup --------
-@app.route("/shutdown")
-def shutdown():
-    async def close_all():
-        await asyncio.gather(*[pc.close() for pc in pcs])
-        pcs.clear()
-    asyncio.run(close_all())
-    return "ok"
-
-@app.route("/")
-def index():
-    return "Server is running."
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5050, debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5050)

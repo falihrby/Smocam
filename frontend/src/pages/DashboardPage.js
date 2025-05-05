@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
+import { fetchWebRTCStream } from './webrtc'; 
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import "../styles/DashboardPage.css";
+
+console.log(fetchWebRTCStream);
 
 const DashboardPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -20,7 +23,7 @@ const DashboardPage = () => {
   const userSession = JSON.parse(localStorage.getItem("userSession"));
   const username = userSession ? userSession.username : "Guest";
 
-  const toggleSidebar = () => setSidebarOpen((prevState) => !prevState);
+  const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
   const handleMouseDrag = (e) => {
     e.preventDefault();
@@ -49,167 +52,91 @@ const DashboardPage = () => {
     document.addEventListener("touchend", onMouseUp);
   };
 
-  const handleBoxClick = (boxLabel) => {
-    setSelectedBox(boxLabel);
+  const handleBoxClick = (box) => {
+    setSelectedBox(box);
     if (rectangleRef.current) {
       rectangleRef.current.scrollIntoView({ behavior: "smooth" });
-    } else {
-      console.warn("Referensi persegi panjang adalah null. Periksa apakah elemen tersebut ada.");
     }
   };
 
   useEffect(() => {
     const areasCollectionRef = collection(db, "areas");
     const devicesCollectionRef = collection(db, "devices");
-  
     const fetchedAreas = new Set();
   
-    const unsubscribeAreas = onSnapshot(
-      areasCollectionRef,
-      (snapshot) => {
-        snapshot.docs.forEach((doc) => fetchedAreas.add(doc.data().areaName));
-        updateAreaButtons();
-      },
-      (error) => {
-        console.error("Kesalahan saat mengambil area:", error.message);
-      }
-    );
-  
-    const unsubscribeDevices = onSnapshot(
-      devicesCollectionRef,
-      (snapshot) => {
-        const devicesData = snapshot.docs
-          .map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter((device) => device.status === "Active"); // Only keep devices with active status
-  
-        setDevices(devicesData);
-        setCctvCount(devicesData.length);
-  
-        // Set the default selectedBox to the first active device
-        if (devicesData.length > 0) {
-          setSelectedBox(devicesData[0]);
-        } else {
-          setSelectedBox(null);
-        }
-  
-        devicesData.forEach((device) => fetchedAreas.add(device.area));
-        updateAreaButtons();
-      },
-      (error) => {
-        console.error("Terjadi kesalahan saat mengambil perangkat:", error.message);
-      }
-    );
-  
-    const updateAreaButtons = () => {
+    const unsubscribeAreas = onSnapshot(areasCollectionRef, (snapshot) => {
+      snapshot.docs.forEach((doc) => fetchedAreas.add(doc.data().areaName));
       const uniqueAreas = ["Semua Area", ...Array.from(fetchedAreas)];
       setAreaButtons(uniqueAreas);
       setAreaCount(uniqueAreas.length - 1);
-    };
+    });
+  
+    const unsubscribeDevices = onSnapshot(devicesCollectionRef, (snapshot) => {
+      const devicesData = snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((device) => device.status === "Active");
+    
+      setDevices(devicesData);
+      setCctvCount(devicesData.length);
+    
+      if (devicesData.length > 0) {
+        setSelectedBox(devicesData[0]);
+        const rtspUrl = devicesData[0].rtspUrl;
+        console.log("Devices Data:", devicesData);
+        console.log("Sending RTSP URL:", rtspUrl);
+  
+        if (rtspUrl) {
+          fetch("http://localhost:5050/api/set-rtsp-url", {
+            method: "POST",
+            body: JSON.stringify({ rtspUrl: devicesData[0]?.rtspUrl }),
+            headers: { "Content-Type": "application/json" },
+          });
+        } else {
+          console.error("RTSP URL is missing for this device.");
+        }
+      } else {
+        setSelectedBox(null);
+      }
+    }, (error) => {
+      console.error("Error fetching devices:", error.message);
+      setLoading(false);
+    });    
   
     return () => {
       unsubscribeAreas();
       unsubscribeDevices();
     };
-  }, []);
-  
+  }, []);  
+
   useEffect(() => {
     if (!selectedBox || typeof selectedBox !== "object" || !rectangleRef.current) return;
+  
     setLoading(true);
-  
-    const fetchWebRTCStream = async () => {
+    const fetchStreamData = async () => {
       try {
-        const pc = new RTCPeerConnection({
-          iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-        });
-  
-        const videoElement = rectangleRef.current;
-  
-        pc.ontrack = (event) => {
-          videoElement.srcObject = event.streams[0];
-          setLoading(false);
-        };
-  
-        pc.addTransceiver("video", { direction: "recvonly" });
-  
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-
-        if (!pc.localDescription) {
-          console.error("Local description is null");
+        if (!selectedBox?.rtspUrl) {
+          console.error("Selected box has no RTSP URL");
           return;
         }
-  
-        console.log("Sending to backend:", {
-          sdp: pc.localDescription?.sdp,
-          type: pc.localDescription?.type,
-          rtspUrl: selectedBox?.rtspUrl,
-        });
-        
-        const response = await fetch("http://localhost:5050/offer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sdp: pc.localDescription?.sdp || "dummy_sdp",
-            type: pc.localDescription?.type || "offer",
-            rtspUrl: selectedBox?.rtspUrl || "rtsp://test",
-          }),          
-        });            
-  
-        const answer = await response.json();
-  
-        await pc.setRemoteDescription(new RTCSessionDescription(answer));
-      } catch (error) {
-        console.error("Gagal setup WebRTC:", error);
+        await fetchWebRTCStream(rectangleRef.current, selectedBox.rtspUrl);
+      } catch (err) {
+        console.error("Failed to fetch stream:", err);
+      } finally {
         setLoading(false);
       }
-    };
+    };    
   
-    fetchWebRTCStream();
-  }, [selectedArea, selectedBox]);    
-
+    fetchStreamData();
+  }, [selectedBox]);    
+  
   useEffect(() => {
-    const devicesCollectionRef = collection(db, "devices");
-
+    if (!selectedBox || !rectangleRef.current) return;
+  
     setLoading(true);
-  
-    const unsubscribeDevices = onSnapshot(
-      devicesCollectionRef,
-      (snapshot) => {
-        const devicesData = snapshot.docs
-          .map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter((device) => device.status === "Active");
-  
-        setDevices(devicesData);
-        setCctvCount(devicesData.length);
-  
-        if (devicesData.length > 0) {
-          const firstDevice = devicesData[0];
-          setSelectedBox(firstDevice);
-  
-          // Set the RTSP URL dynamically in the environment
-          fetch("http://localhost:5050/api/set-rtsp-url", {
-            method: "POST",
-            body: JSON.stringify({ rtspUrl: firstDevice.rtspUrl }),
-            headers: { "Content-Type": "application/json" },
-          });
-        } else {
-          setSelectedBox(null);
-        }
-      },
-      (error) => {
-        console.error("Error fetching devices:", error.message);
-        setLoading(false);
-      }
-    );
-  
-    return () => unsubscribeDevices();
-  }, []);   
+    fetchWebRTCStream(rectangleRef.current, selectedBox.rtspUrl)
+      .then(() => setLoading(false))
+      .catch(() => setLoading(false));
+  }, [selectedBox]);
 
   // Filter devices by selected area
   const filteredDevices = selectedArea === "Semua Area" ? devices : devices.filter(device => device.area === selectedArea);
@@ -336,10 +263,10 @@ const LeftColumn = ({
         onMouseDown={handleMouseDrag}
         onTouchStart={handleMouseDrag}
       >
-        {areaButtons.map((area) => (
+          {areaButtons.map((area, index) => (
           <button
-            key={area}
-            className={`area-button ${selectedArea === area ? "selected" : ""}`}
+            key={index}
+            className={`area-button ${selectedArea === area ? "active" : ""}`}
             onClick={() => setSelectedArea(area)}
           >
             {area}
@@ -353,13 +280,13 @@ const LeftColumn = ({
 
         {selectedBox ? (
           <video
-            id="cctv-stream"
-            autoPlay
-            playsInline
-            controls
             ref={rectangleRef}
-            style={{ width: "100%", height: "auto", background: "#000" }}
-          ></video>
+            autoPlay
+            muted
+            playsInline
+            controls={false}
+            className="cctv-video"
+          />        
         ) : (
           <div className="no-cameras-message">Kamera tidak tersedia di area ini.</div>
         )}
