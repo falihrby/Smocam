@@ -1,6 +1,6 @@
 # SmoCam (Smoke Camera)
 
-<img src="public/images/logo_smocam.png" alt="Smocam Logo" width="200"/>
+<img src="frontend/public/images/logo_smocam.png" alt="Smocam Logo" width="200"/>
 
 SmoCam is a real-time smoke detection system leveraging YOLOv8 and IoT to monitor and log smoking activities.
 
@@ -24,8 +24,8 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 
 For further questions or technical support, please contact us at [falihrahmat534@gmail.com](mailto:falihrahmat534@gmail.com).
 
-![Login Screenshot](public/images/login_smocam.png)
-![Dashboard Screenshot](public/images/dashboard_smocam.png)
-![Laporan Screenshot](public/images/laporan_smocam.png)
-![Manajemen Perangkat Screenshot](public/images/manajemenperangkat_smocam.png)
-![Perangkat Screenshot](public/images/detailperangkat_smocam.png)
+![Login Screenshot](frontend/public/images/login_smocam.png)
+![Dashboard Screenshot](frontend/public/images/dashboard_smocam.png)
+![Laporan Screenshot](frontend/public/images/laporan_smocam.png)
+![Manajemen Perangkat Screenshot](frontend/public/images/manajemenperangkat_smocam.png)
+![Perangkat Screenshot](frontend/public/images/detailperangkat_smocam.png)
