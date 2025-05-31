@@ -6,7 +6,7 @@ import asyncio
 import threading
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
 pcs = set()
 
@@ -81,6 +81,20 @@ def stop_rtsp_stream():
         return jsonify({"status": "Streaming stopped"})
     else:
         return jsonify({"status": "Error", "message": "No active stream!"}), 400
+    
+@app.route("/api/set-rtsp-url", methods=["POST"])
+def set_rtsp_url():
+    data = request.get_json()
+    url = data.get("rtspUrl")
+    if url:
+        rtsp_url_store["url"] = url
+        print(f"New RTSP URL set: {url}")
+        return jsonify({"status": "ok", "url": url}), 200
+    return jsonify({"error": "Missing RTSP URL"}), 400
+
+@app.route("/")
+def index():
+    return "SMOCAM Backend API is running"
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5050)

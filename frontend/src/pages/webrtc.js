@@ -5,6 +5,11 @@ export async function fetchWebRTCStream(videoElement, rtspUrl) {
   const pc = new RTCPeerConnection({
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
   });
+
+  const stream = new MediaStream();
+  pc.ontrack = (event) => stream.addTrack(event.track);
+  videoElement.srcObject = stream;
+
   pc.addTransceiver('video', { direction: 'recvonly' });
 
   const offer = await pc.createOffer();
@@ -19,13 +24,10 @@ export async function fetchWebRTCStream(videoElement, rtspUrl) {
       rtspUrl,
     }),
   });
+
   if (!res.ok) throw new Error(`Offer failed: ${res.statusText}`);
   const answer = await res.json();
-  await pc.setRemoteDescription(answer);
-
-  pc.ontrack = (ev) => {
-    videoElement.srcObject = ev.streams[0];
-  };
+  await pc.setRemoteDescription(new RTCSessionDescription(answer));
 }
 
 // Function to create a WebRTC peer connection

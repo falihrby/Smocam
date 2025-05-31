@@ -85,17 +85,23 @@ const DashboardPage = () => {
       setCctvCount(devicesData.length);
     
       if (devicesData.length > 0) {
-        setSelectedBox(devicesData[0]);
-        const rtspUrl = devicesData[0].rtspUrl;
-        console.log("Devices Data:", devicesData);
-        console.log("Sending RTSP URL:", rtspUrl);
-  
+  setSelectedBox(devicesData[0]);
+  const rtspUrl = devicesData[0].rtspUrl;
+  console.log("Devices Data:", devicesData);
+  console.log("Sending RTSP URL:", rtspUrl);
+
         if (rtspUrl) {
           fetch("http://localhost:5050/api/set-rtsp-url", {
             method: "POST",
-            body: JSON.stringify({ rtspUrl: devicesData[0]?.rtspUrl }),
             headers: { "Content-Type": "application/json" },
-          });
+            body: JSON.stringify({ rtspUrl }),
+          })
+          .then((res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            return res.json();
+          })
+          .then((data) => console.log("RTSP set response:", data))
+          .catch((err) => console.error("Failed to send RTSP URL:", err));
         } else {
           console.error("RTSP URL is missing for this device.");
         }
@@ -114,6 +120,8 @@ const DashboardPage = () => {
   }, []);  
 
   useEffect(() => {
+    console.log("videoElement (selectedBox effect):", rectangleRef.current);
+    console.log("rtspUrl (selectedBox effect):", selectedBox ? selectedBox.rtspUrl : "No selectedBox or rtspUrl");
     if (!selectedBox || typeof selectedBox !== "object" || !rectangleRef.current) return;
   
     setLoading(true);
