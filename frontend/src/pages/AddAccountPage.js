@@ -199,7 +199,6 @@ const AddAccountPage = () => {
                 <select name="role" value={formData.role} onChange={handleInputChange} required>
                   <option value="">Pilih Peran</option>
                   <option value="Admin">Admin</option>
-                  <option value="Editor">Editor</option>
                   <option value="Viewer">Viewer</option>
                 </select>
               </div>
@@ -255,7 +254,7 @@ const AddAccountPage = () => {
                   className="add-account-page-submit-button"
                   disabled={loading}
                 >
-                  {loading ? "Menyimpan..." : "Tersimpan"}
+                  {loading ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
             </form>

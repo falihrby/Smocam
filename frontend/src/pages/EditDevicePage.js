@@ -300,7 +300,7 @@ const EditDevicePage = () => {
               </p>
               <div className="add-device-form-group">
                 <button type="submit" className="add-device-submit-button" disabled={isSaving}>
-                  {isSaving ? "Menyimpan..." : "Tersimpan"}
+                  {isSaving ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
             </form>
