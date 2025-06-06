@@ -1,4 +1,3 @@
-# backend/fetch_rtsp.py
 import sys
 import firebase_admin
 from firebase_admin import credentials, firestore

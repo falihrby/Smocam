@@ -1,4 +1,60 @@
-/* Dashboard Container */
+/* Add these new styles to your existing DashboardPage.css */
+
+.cctv-stream-wrapper {
+  width: 100%;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  /* Maintain a 16:9 aspect ratio */
+  padding-top: 56.25%; 
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cctv-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+}
+
+.video-overlay.error {
+  color: #ffcccc;
+  background-color: rgba(50, 0, 0, 0.7);
+  padding: 1rem;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.rectangle-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #343a40;
+  margin-bottom: 0.5rem;
+}
+
+/* You should already have these styles, but ensure they are present */
 .dashboard-container {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -6,84 +62,52 @@
   overflow: auto;
   transition: grid-template-columns 0.3s ease;
 }
-
-/* Sidebar Styles */
-.dashboard-sidebar {
-  width: 250px;
-  background-color: #354052;
-  color: white;
-  transition: width 0.3s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Main Content */
 .dashboard-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
 }
-
-/* Dashboard Content */
 .dashboard-content {
   flex: 1;
   padding: 2rem;
   background-color: #f1f1f1;
   overflow-y: auto;
 }
-
 .dashboard-row {
   margin-bottom: 1rem;
 }
-
 .dashboard-divider {
   border: none;
   height: 1px;
   background-color: #ddd;
-  margin: 1;
+  margin: 1rem 0;
 }
-
 .dashboard-row.two-columns {
   display: flex;
+  gap: 1.5rem; /* Added gap for spacing */
   width: 100%;
   box-sizing: border-box;
-  justify-content: space-between;
-  overflow: visible;
 }
-
-/* Dashboard Columns */
 .dashboard-column {
   padding-top: 10px;
-  flex: 1;
-  flex-shrink: 0;
 }
-
 .left-column {
-  flex: 1 1 200px;
-  max-width: 68%;
-  background-color: transparent;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 3; /* Give more space to the video column */
 }
-
 .right-column {
-  flex: 0 0 250px;
-  max-width: 250px;
-  padding: 1rem;
+  flex: 1; /* Give less space to the info column */
+  min-width: 280px; /* Ensure it doesn't get too squished */
+  max-width: 350px;
   background-color: #fff;
   border-radius: 8px;
-  height: 100%;
+  padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* Card Styles */
 .card-row {
   display: flex;
   gap: 1rem;
 }
-
 .dashboard-card {
   flex: 1;
   display: flex;
@@ -93,14 +117,9 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .card-left {
   flex: 0 0 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
-
 .icon-box {
   width: 50px;
   height: 50px;
@@ -109,235 +128,42 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  color: white;
-  overflow: hidden;
 }
-
-.icon-box svg {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-}
-
 .card-right {
   margin-left: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
-
 .card-number {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #343a40;
 }
-
 .card-label {
   font-size: 0.75rem;
   color: #6c757d;
 }
-
-/* Area Buttons */
-.area-buttons {
-  display: flex;
-  gap: 1rem;
-  padding-bottom: 1.25rem;
-  overflow: hidden;
-  white-space: nowrap;
-  max-width: calc(5 * (9rem + 0.5rem));
-  cursor: grab;
-}
-
-.area-buttons:active {
-  cursor: grabbing;
-}
-
-.area-button {
-  background-color: transparent;
-  color: #343a40;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s ease;
-}
-
-.area-button:hover {
-  background-color: #d5d5d5;
-}
-
-.area-button.selected {
-  background-color: #343a40;
-  color: white;
-  font-weight: bold;
-}
-
-/* Rectangle and Label Wrapper */
-.empty-rectangle-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: left;
-  justify-content: center;
-}
-
-.rectangle-label {
-  font-size: 16px;
-  font-weight: bold;
-  color: #343a40;
-  padding-bottom: 0.5rem;
-  width: fit-content;
-  cursor: default;
-}
-
-.empty-rectangle {
-  height: 360px;
-  width: 100%;
-  background-color: #e0e0e0;
-  border-radius: 8px;
-}
-
-/* No Cameras Available Styling */
-.no-cameras-message {
-  font-size: 1.1rem;
-  color: #6c757d;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 1rem;
-}
-
-/* Detected Today Section */
 .detected-today {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 0;
-  padding-top: 0;
-  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
-
-.detected-today h4 {
-  margin: 0;
-  padding: 0;
-}
-
-.chevron-link {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.chevron-icon {
-  color: #343a40;
-}
-
-.chevron-link:hover .chevron-icon {
-  color: #007bff;
-}
-
-/* Detected Info Row */
 .detected-info-row {
   display: flex;
   align-items: center;
-  margin-top: 1rem;
-  gap: 0.5rem;
-}
-
-.detected-details {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.63rem;
-}
-
-.detected-date,
-.detected-student {
-  color: #6c757d;
-}
-
-.detected-message {
-  font-weight: bold;
-  color: #007bff;
-}
-
-.detected-photo {
-  flex: 0 0 120px;
-}
-
-.photo-placeholder {
-  width: 100%;
-  height: 80px;
-  background-color: #e0e0e0;
-  border-radius: 4px;
-}
-
-/* Scrollable Boxes */
-.scrollable-boxes {
-  display: flex;
-  overflow-x: auto;
   gap: 1rem;
-  padding: 1rem 0;
-  max-width: calc(3 * 250px + 3 * 1rem);
-  scroll-behavior: smooth;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 0.75rem;
 }
-
-.scrollable-boxes::-webkit-scrollbar {
-  height: 8px;
+.detected-details {
+  font-size: 0.8rem;
 }
-
-.scrollable-boxes::-webkit-scrollbar-thumb {
-  background-color: #d5d5d5;
+.detected-photo {
+  flex-shrink: 0;
+}
+.photo-placeholder {
+  width: 100px;
+  height: 60px;
+  background-color: #e0e0e0;
   border-radius: 4px;
 }
 
-.scrollable-boxes::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-
-.scroll-box-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 213px;
-  cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.scroll-box-wrapper:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
-}
-
-.scroll-box {
-  width: 213px;
-  height: 120px;
-  background-color: #e0e0e0;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  font-size: 1rem;
-}
-
-.scroll-box-content {
-  padding: 1rem;
-}
-
-.scroll-box-label {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: #343a40;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.scroll-box-wrapper:hover .scroll-box-label {
-  font-weight: bold;
-  color: #007bff;
-}
