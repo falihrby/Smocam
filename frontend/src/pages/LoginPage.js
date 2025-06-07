@@ -74,11 +74,11 @@ function LoginPage() {
       <div className="login-right">
         <img
           src="/assets/logo_fst.png"
-          alt="Smocam Logo"
+          alt="SmoCam Logo"
           className="login-logo"
         />
         <h1 className="welcome-heading">
-          Welcome to <span className="smocam-highlight">Smocam</span>
+          Welcome to <span className="smocam-highlight">SmoCam</span>
         </h1>
         <p className="welcome-subtext">Enter your email and password to continue.</p>
         {error && <p className="error">{error}</p>}

@@ -160,7 +160,7 @@ const AreaSelectorAndStream = () => {
                 pcRef.current = pc;
             } catch (error) {
                 console.error("[React] Failed to start stream:", error);
-                setStreamError("Gagal menyambungkan ke stream. Periksa konsol backend.");
+                setStreamError("Koneksi ke kamera gagal. Cek jaringan dan power.");
             } finally {
                 if (videoRef.current) {
                     setIsLoading(false);

@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen }) => {
     <div className={classNames("sidebar", { "is-open": isOpen })}>
       <div className="sidebar-header">
         <img src="/assets/logo_fst.png" alt="Logo" className="sidebar-logo" />
-        <h4 className="sidebar-title">Aplikasi Smocam</h4>
+        <h4 className="sidebar-title">Aplikasi SmoCam</h4>
       </div>
       <hr className="dashboard-divider" />
       <nav className="nav">
