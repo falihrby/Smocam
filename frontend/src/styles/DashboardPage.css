@@ -1,9 +1,9 @@
-/* File: frontend/src/styles/DashboardPage.css */
+/* frontend/src/styles/DashboardPage.css */
 
 /* Main Layout & Structure */
 .dashboard-container {
   display: grid;
-  grid-template-columns: 250px 1fr; /* Default width for open sidebar */
+  grid-template-columns: 250px 1fr;
   height: 100vh;
   overflow: hidden;
   transition: grid-template-columns 0.3s ease-in-out;
@@ -11,9 +11,10 @@
 }
 
 .dashboard-container.sidebar-closed {
-  grid-template-columns: 80px 1fr; /* Width for closed sidebar */
+  grid-template-columns: 80px 1fr;
 }
 
+/* PERBAIKAN: dashboard-main menggunakan flexbox untuk menata navbar dan konten */
 .dashboard-main {
   display: flex;
   flex-direction: column;
@@ -21,62 +22,66 @@
   overflow: hidden;
 }
 
+/* PERBAIKAN: dashboard-content menjadi flex container utama */
 .dashboard-content {
   flex-grow: 1;
   padding: 1.5rem 2rem;
-  overflow-y: auto;
+  overflow: auto; /* Memungkinkan scroll jika konten terlalu besar */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .dashboard-divider {
   border: none;
   height: 1px;
   background-color: #e9ecef;
-  margin: 1.5rem 0;
+  margin: 0; /* Dihapus margin atas/bawah karena sudah ada gap */
 }
 
-/* Row & Column Layout */
-.dashboard-row {
-  width: 100%;
-}
-
-.card-row {
+/* PERBAIKAN: Layout header dan body */
+.dashboard-header {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
+  flex-shrink: 0; /* Mencegah header memakan ruang vertikal */
 }
 
-.two-columns {
+.dashboard-body {
+  flex-grow: 1; /* PENTING: Membuat area ini mengisi sisa ruang */
   display: flex;
   gap: 1.5rem;
+  min-height: 0; /* Mencegah masalah overflow pada flex item */
 }
 
+
+/* --- Kolom Kiri dan Kanan --- */
 .dashboard-column {
   display: flex;
   flex-direction: column;
 }
 
 .left-column {
-  flex: 3;
+  flex: 3; /* Mengambil ruang 3x lebih banyak dari kolom kanan */
   min-width: 300px;
+  gap: 1rem;
 }
 
 .right-column {
   flex: 1;
-  min-width: 300px;
+  min-width: 320px;
   max-width: 400px;
   background-color: #ffffff;
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
 }
 
 .column-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #212529;
-    margin: 0.5rem 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 0.5rem 0; /* Margin bawah yang lebih konsisten */
 }
 
 /* --- Top Cards --- */
@@ -101,6 +106,7 @@
   justify-content: center;
   border-radius: 10px;
   color: white;
+  font-size: 1.5rem; /* Icon lebih besar sedikit */
 }
 
 .card-number {
@@ -113,22 +119,54 @@
   font-size: 0.8rem;
   color: #6c757d;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-/* --- Left Column: Video Stream --- */
+/* --- Left Column: Area Tabs & Video Stream --- */
+.area-tabs-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex-shrink: 0; /* Tidak memakan ruang vertikal */
+}
+
+.area-tab {
+  padding: 0.5rem 1.25rem;
+  border: 1px solid #dee2e6;
+  background-color: #ffffff;
+  color: #495057;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.area-tab:hover {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.area-tab.active {
+  background-color: #007bff;
+  color: #ffffff;
+  border-color: #007bff;
+}
+
 .cctv-stream-wrapper {
-  width: 100%;
+  flex-grow: 1; /* PENTING: Membuat wrapper ini mengisi ruang vertikal */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .video-container {
   position: relative;
   width: 100%;
-  padding-top: 56.25%; /* 16:9 Aspect Ratio */
   background-color: #000;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  flex-grow: 1; /* Mengisi ruang di dalam wrapper */
 }
 
 .cctv-video {
@@ -138,22 +176,18 @@
   width: 100%;
   height: 100%;
   border-radius: 12px;
+  object-fit: cover; /* Menjamin video mengisi kontainer */
 }
 
 .video-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 1.2rem;
   background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
   text-align: center;
   padding: 1rem;
 }
@@ -161,7 +195,18 @@
 .video-overlay.error {
   color: #ffcdd2;
   font-size: 1rem;
-  line-height: 1.5;
+}
+
+.no-device-container {
+  flex-grow: 1; /* Mengisi ruang sama seperti video */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  color: #6c757d;
+  font-style: italic;
+  border: 2px dashed #e0e0e0;
 }
 
 
@@ -170,16 +215,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0;
   flex-shrink: 0;
 }
 
 .chevron-link {
-    color: #6c757d;
-    transition: color 0.2s;
+  color: #6c757d;
+  transition: color 0.2s;
 }
 .chevron-link:hover {
-    color: #007bff;
+  color: #007bff;
 }
 
 .detections-list {
@@ -210,18 +254,10 @@
   font-weight: 600;
   color: #343a40;
 }
-.detected-student {
-  color: #495057;
-}
-
-.detected-photo {
-  flex-shrink: 0;
-}
 
 .photo-snapshot {
   width: 100px;
   height: 60px;
-  background-color: #e9ecef;
   border-radius: 6px;
   object-fit: cover;
   border: 1px solid #dee2e6;
@@ -232,68 +268,4 @@
   text-align: center;
   padding: 3rem 1rem;
   font-style: italic;
-}
-
-
-/* ============================================= */
-/* ===== CSS BARU YANG DITAMBAHKAN (AMAN) ====== */
-/* ============================================= */
-
-/* --- Styling untuk Area Tabs --- */
-.area-tabs-container {
-  display: flex;
-  flex-wrap: wrap; /* Agar tab bisa turun ke bawah jika tidak cukup tempat */
-  gap: 0.75rem;
-  margin-bottom: 1rem; /* Memberi jarak ke konten di bawahnya */
-}
-
-.area-tab {
-  padding: 0.5rem 1.25rem;
-  border: 1px solid #dee2e6;
-  background-color: #ffffff;
-  color: #495057;
-  border-radius: 20px; /* Membuat sudut lebih bulat */
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.9rem;
-  transition: all 0.2s ease-in-out;
-  flex-shrink: 0; /* Mencegah tab mengecil */
-}
-
-.area-tab:hover {
-  border-color: #007bff;
-  color: #007bff;
-  background-color: #e7f1ff;
-}
-
-.area-tab.active {
-  background-color: #007bff;
-  color: #ffffff;
-  border-color: #007bff;
-  font-weight: 600;
-}
-
-
-/* --- Styling untuk placeholder "Tidak ada perangkat" --- */
-.no-device-container {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 Aspect Ratio, sama dengan video */
-  background-color: #f8f9fa; /* Warna latar sedikit abu-abu */
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6c757d;
-  font-style: italic;
-  font-size: 1.1rem;
-  border: 2px dashed #e0e0e0; /* Garis putus-putus */
-}
-
-.no-device-container p {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
 }

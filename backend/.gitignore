@@ -4,3 +4,7 @@ __pycache__/
 *.pyo
 *.pyd
 *.so
+*.pt
+
+# Firebase credentials
+backend/firebase-service-account.json
