@@ -1,4 +1,6 @@
-/* Layout Container */
+/* =================================
+   Layout Container
+==================================== */
 .layout-container {
   display: grid;
   grid-template-columns: auto 1fr; /* Sidebar and main content */
@@ -7,17 +9,21 @@
   transition: grid-template-columns 0.3s ease; /* Smooth sidebar toggle */
 }
 
-/* Sidebar Styles */
+/* =================================
+   Sidebar
+==================================== */
 .layout-sidebar {
   width: 250px; /* Fixed sidebar width */
   background-color: #343a40; /* Dark sidebar background */
-  color: white;
+  color: #fff;
   transition: width 0.3s ease;
   display: flex;
   flex-direction: column;
 }
 
-/* Main Content */
+/* =================================
+   Main Content
+==================================== */
 .layout-main {
   flex: 1;
   display: flex;
@@ -32,7 +38,7 @@
   overflow-y: auto; /* Enable vertical scrolling */
 }
 
-/* Page Scrollbar */
+/* Custom Scrollbar */
 .page-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -46,18 +52,21 @@
   background-color: transparent;
 }
 
-/* Custom Card */
+/* =================================
+   Components
+==================================== */
+/* Card */
 .custom-card {
-  background-color: white; /* White card background */
+  background-color: #fff;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  margin-bottom: 1rem; /* Space below the card */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
 }
 
 .custom-card h1 {
-  font-size: 1.25rem; /* Title font size */
-  color: #343a40; /* Dark text */
+  font-size: 1.25rem;
+  color: #343a40;
   margin-bottom: 0.5rem;
 }
 
@@ -65,200 +74,81 @@
   border: 0;
   height: 1px;
   background-color: #ddd;
-  margin: 1rem 0; /* Space around divider */
+  margin: 1rem 0;
 }
 
 /* Table */
 .custom-table {
-  width: 100%; /* Full width */
-  border-collapse: collapse; /* Remove gaps between cells */
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .custom-table th,
 .custom-table td {
-  padding: 0.5rem; /* Compact padding */
-  font-size: 0.75rem; /* Small font size */
-  text-align: left; /* Align text to the left */
-  color: #343a40; /* Dark text */
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  text-align: left;
+  color: #343a40;
 }
 
-/* Center Align Table Head Text */
 .custom-table th {
-  vertical-align: middle; /* Ensure text is vertically centered */
-  padding: 0.75rem;
   background-color: #f4f4f4;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 0.875rem;
-  color: #343a40;
 }
 
 .custom-table tbody tr {
-  border-bottom: 1px solid #ddd; /* Only bottom border */
+  border-bottom: 1px solid #ddd;
 }
 
 .custom-table tbody tr:last-child {
-  border-bottom: none; /* No border for the last row */
+  border-bottom: none;
 }
 
 .custom-table tbody tr:hover {
-  background-color: #f1f1f1; /* Highlight row on hover */
+  background-color: #f9f9f9;
 }
 
-/* Empty Box Placeholder */
+/* Limit width for Image URL column (6th column) */
+.custom-table td:nth-child(6),
+.custom-table th:nth-child(6) {
+  max-width: 220px;   /* bisa sesuaikan lagi */
+  width: 220px;
+  word-break: break-all;
+}
+
+/* Placeholder box (no image) */
 .empty-box {
-  width: 125px; /* Adjusted width for image area */
+  width: 125px;
   height: 70px;
-  background-color: #e0e0e0; /* Light gray */
-  border: 1px solid #ddd; /* Border to define box */
-  border-radius: 4px; /* Rounded corners */
+  background: #e0e0e0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
-/* Report Page Action Buttons */
-.report-page-action-buttons {
+/* =================================
+   Actions & Filters
+==================================== */
+/* Header Row */
+.header-row {
   display: flex;
-  gap: 0.3rem; /* Space between buttons */
-  justify-content: center; /* Center buttons horizontally */
-  align-items: center; /* Center buttons vertically */
-}
-
-.report-page-action-button {
-  background-color: #343a40; /* Dark gray background */
-  color: white; /* White text */
-  border: none; /* Remove border */
-  padding: 0.5rem 0.8rem; /* Compact padding */
-  font-size: 0.7rem; /* Small font size */
-  border-radius: 4px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s ease; /* Smooth hover transition */
-}
-
-.report-page-action-button:hover {
-  background-color: #4b525a; /* Slightly lighter gray on hover */
-}
-
-/* Action Buttons Container */
-.action-buttons {
-  display: flex;
-  gap: 0.3rem; /* Space between buttons */
-  justify-content: center; /* Center buttons horizontally */
-  align-items: center; /* Center buttons vertically */
-}
-
-/* Button States */
-.button-primary {
-  background-color: #007bff; /* Primary button color */
-  color: white; /* White text */
-  border: none;
-  padding: 0.25rem 0.5rem; /* Compact padding */
-  font-size: 0.7rem; /* Small font size */
-  border-radius: 4px; /* Rounded corners */
-  cursor: pointer;
-  transition: background-color 0.3s ease; /* Smooth hover */
-  margin-right: 0.5rem; /* Space between buttons */
-}
-
-.button-primary:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-}
-
-.button-secondary {
-  background-color: #6c757d; /* Secondary button color */
-  color: white;
-  border: none;
-  padding: 0.25rem 0.5rem; /* Compact padding */
-  font-size: 0.7rem; /* Small font size */
-  border-radius: 4px; /* Rounded corners */
-  cursor: pointer;
-  transition: background-color 0.3s ease; /* Smooth hover */
-}
-
-.button-secondary:hover {
-  background-color: #5a6268; /* Darker gray on hover */
-}
-
-/* Pagination Styles */
-.pagination {
-  display: flex;
-  justify-content: right;
+  justify-content: space-between;
   align-items: center;
-  margin-top: 1rem;
-  gap: 0.5rem; /* Space between buttons */
 }
 
-.pagination-button {
-  padding: 0.5rem 0.75rem;
-  background-color: #f4f4f4;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.625rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.pagination-button:hover {
-  background-color: #343a40;
-  color: white;
-}
-
-.pagination-button.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
-}
-
-.pagination-button:disabled {
-  background-color: #ddd;
-  color: #aaa;
-  cursor: not-allowed;
-}
-
-/* Filter Dropdown Container */
-.filter-container {
-  margin-bottom: 1rem;
-  gap: 1rem;
+.header-actions {
   display: flex;
-  justify-content: flex-start;
+  gap: 0.5rem;
 }
 
-/* Filter Dropdown Wrapper */
-.dropdown-wrapper {
-  position: relative;
-  display: inline-block;
-  width: 200px;
+/* Filter Container */
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.filter-dropdown {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  appearance: none; /* Hide native dropdown arrow */
-  background-color: #fff;
-  color: #343a40;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-  z-index: 400; /* Lower than the filter-container */
-}
-
-.filter-dropdown:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-/* Dropdown Icon */
-.dropdown-icon {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  pointer-events: none; /* Prevent clicking on the icon */
-}
-
-/* Date Filter */
 .date-filter {
   display: flex;
   align-items: center;
@@ -278,33 +168,159 @@
   color: #343a40;
 }
 
-/* Header Row */
-.header-row {
+/* =================================
+   Buttons & Pagination
+==================================== */
+/* General Action Buttons */
+.report-page-action-buttons {
   display: flex;
-  justify-content: space-between;
+  gap: 0.3rem;
+  justify-content: center;
   align-items: center;
 }
 
-/* Print Button */
+.report-page-action-button {
+  background: #343a40;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.report-page-action-button:hover:not(:disabled) {
+  background: #50575f;
+}
+
+.report-page-action-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* CSV and Print Buttons */
+.csv-button,
 .print-button {
   display: flex;
   align-items: center;
-  background-color: #343a40; /* Dark background */
-  color: white; /* White text */
-  border: none; /* No border */
-  font-size: 14px;
-  padding: 0.5rem 1rem; /* Space around text and icon */
-  border-radius: 4px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor */
-  transition: background-color 0.3s ease; /* Smooth hover transition */
+  gap: 0.4rem;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background 0.25s ease;
 }
 
-.print-button svg {
-  margin-right: 0.5rem; /* Space between icon and text */
-  width: 24px;
-  height: 24px;
+.csv-button {
+  background: #27ae60;
+  color: #fff;
+}
+
+.csv-button:hover {
+  background: #1e8449;
+}
+
+.print-button {
+  background: #343a40;
+  color: #fff;
 }
 
 .print-button:hover {
-  background-color: #4b525a; /* Lighter dark gray on hover */
+  background: #50575f;
+}
+
+.print-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* =================================
+   Print‑only styles
+==================================== */
+@media print {
+  @page { size: A4; margin: 5mm; }
+
+  /* sembunyikan navigasi, logo, filter, pagination */
+  .layout-sidebar,
+  .sidebar,
+  .navbar,
+  .header-row,
+  .header-actions,
+  .filter-container,
+  .pagination,
+  .logo,
+  .app-header {
+    display: none !important;
+  }
+
+  /* rentangkan area konten sepenuhnya & buang padding */
+  .layout-container { grid-template-columns: 1fr !important; }
+  .page-content,
+  .custom-card { margin: 0 !important; padding: 0 !important; }
+
+  /* tabel penuh & teks 10 pt */
+  .custom-table { width: 100%; table-layout: fixed; font-size: 10pt; }
+  .custom-table th,
+  .custom-table td { word-wrap: break-word; }
+
+  /* sembunyikan kolom 'Aksi' (kolom ke‑7) */
+  .custom-table th:nth-child(7),
+  .custom-table td:nth-child(7) { display: none !important; }
+
+  html, body,
+  .page-content {
+    overflow: visible !important;      
+  }
+  .page-content::-webkit-scrollbar {  
+    display: none !important;
+  }
+
+  .custom-card {
+    padding-left: 4mm !important;
+    padding-right: 4mm !important;
+  }
+
+  .custom-table th:first-child,
+  .custom-table td:first-child {
+    width: 40px;      
+    min-width: 40px;
+    text-align: center;
+  }
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.pagination button {
+  padding: 0.45rem 0.65rem;
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.pagination button:hover {
+  background: #343a40;
+  color: #fff;
+}
+
+.pagination button.active {
+  background: #007bff;
+  border-color: #007bff;
+  color: #fff;
+}
+
+.pagination button:disabled {
+  background: #ddd;
+  color: #aaa;
+  cursor: not-allowed;
 }

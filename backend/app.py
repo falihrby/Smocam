@@ -1,226 +1,220 @@
-# backend/app.py
-import os
-os.environ["AIORTC_ICE_ADDRESSES"] = "192.168.1.4"
-
-import asyncio
-import uuid
-import logging
-import time
-import cv2
-import av
-import numpy as np
+import os, asyncio, uuid, logging, time
 from datetime import datetime
 from threading import Thread
-from queue import Queue
+from queue import Queue, Empty
 from concurrent.futures import ThreadPoolExecutor
 
+import cv2, av
 from aiohttp import web
 import aiohttp_cors
-from aiortc import RTCPeerConnection, RTCSessionDescription, RTCConfiguration, RTCIceServer, VideoStreamTrack
-
+from aiortc import (
+    RTCPeerConnection, RTCSessionDescription, RTCConfiguration,
+    RTCIceServer, VideoStreamTrack
+)
 from ultralytics import YOLO
 import firebase_admin
-from firebase_admin import credentials, firestore, storage
+from firebase_admin import credentials, firestore
+from supabase import create_client, Client
 
-# --- Logging Setup ---
-logging.basicConfig(level=logging.INFO)
+# ─────────────── 1. ENV & Logging ───────────────
+os.environ["AV_CODEC_THREADS"] = "1"
+av.logging.set_level(av.logging.ERROR)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger("smocam")
 
-pcs = set()
-PROCESSING_WIDTH, PROCESSING_HEIGHT = 640, 480
-# --- OPTIMASI: Proses lebih sedikit frame untuk mengurangi beban CPU ---
-FRAME_SKIP = 5 
+EXECUTOR = ThreadPoolExecutor(max_workers=4)
+ICE_SERVERS = [RTCIceServer(urls=["stun:stun.l.google.com:19302"])]
+DETECTION_QUEUE = asyncio.Queue()
+DETECTION_FRAME_QUEUE = asyncio.Queue(maxsize=1)
+UPLOAD_SEMAPHORE = asyncio.Semaphore(2)
 
-# --- PERBAIKAN: Buat thread pool executor untuk proses berat (AI) ---
-executor = ThreadPoolExecutor(max_workers=4)
+# ─────────────── 2. Supabase ───────────────
+SUPABASE_URL  = "https://lzahhwiqhhpdheoexslk.supabase.co"
+SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6YWhod2lxaGhwZGhlb2V4c2xrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTczNDc5NywiZXhwIjoyMDY3MzEwNzk3fQ.gYTCMgud_O9ZUoR_woVJGpATy3yYwHPqndTlD4rvbNk"
+BUCKET_NAME   = "smocam-images"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-
-ICE_SERVERS = [
-    RTCIceServer(urls=["stun:stun.l.google.com:19302"]),
-    RTCIceServer(urls=["stun:stun1.l.google.com:19302"]),
-]
-
-# --- Firebase & YOLO Init ---
+# ─────────────── 3. Firestore ───────────────
 try:
     cred = credentials.Certificate("firebase-service-account.json")
-    firebase_admin.initialize_app(cred, {'storageBucket': 'smocam-3b5d2.appspot.com'})
+    firebase_admin.initialize_app(cred)
     db = firestore.client()
-    bucket = storage.bucket()
+    logger.info("✅ Firestore connected.")
 except Exception as e:
-    logger.critical(f"Firebase init failed: {e}", exc_info=True)
-    db = bucket = None
+    db = None
+    logger.error("❌ Firestore init failed: %s", e)
 
+# ─────────────── 4. YOLOv8 Model ───────────────
 try:
-    model = YOLO("best.pt")
+    model = YOLO("bestM7.pt")
     CLASS_NAMES = model.model.names
+    logger.info("✅ YOLO model loaded.")
 except Exception as e:
-    logger.critical(f"YOLO model failed to load: {e}", exc_info=True)
     model = None
+    CLASS_NAMES = []
+    logger.error("❌ YOLO load error: %s", e)
 
+def run_yolo(frame):
+    return model.predict(frame, verbose=False, imgsz=640)
 
-# --- Threaded Video Capture Class ---
+# ─────────────── 5. Threaded RTSP Reader ───────────────
 class ThreadedVideoCapture:
-    def __init__(self, rtsp_url):
-        self.cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
-        self.queue = Queue(maxsize=2)
-        self.running = True
-        self.thread = Thread(target=self._reader, daemon=True)
-        self.thread.start()
+    def __init__(self, url: str):
+        self.url = url
+        self.cap = cv2.VideoCapture(url + "?rtsp_transport=tcp", cv2.CAP_FFMPEG)
+        if not self.cap.isOpened():
+            logger.warning("⚠️ Cannot open stream")
+
+        self.q = Queue(maxsize=10)
+        self.run = True
+        Thread(target=self._reader, daemon=True).start()
 
     def _reader(self):
-        while self.running:
-            ret, frame = self.cap.read()
-            if not ret:
-                logger.warning("Failed to grab frame from RTSP source, retrying in 1 sec...")
+        while self.run:
+            if not self.cap.isOpened():
                 time.sleep(1)
                 continue
-            if not self.queue.full():
-                self.queue.put(frame)
+            ok, f = self.cap.read()
+            if ok and not self.q.full():
+                self.q.put(f)
+            else:
+                time.sleep(0.01)
 
     def read(self):
-        try:
-            return True, self.queue.get(timeout=1)
-        except self.queue.Empty:
-            return False, None
+        try: return True, self.q.get(timeout=1)
+        except Empty: return False, None
 
     def release(self):
-        self.running = False
-        if self.thread.is_alive():
-            self.thread.join()
+        self.run = False
         self.cap.release()
 
-
-# --- PERBAIKAN: Fungsi untuk menjalankan model di thread terpisah ---
-def run_model_prediction(frame):
-    """Fungsi ini akan dijalankan di executor untuk menghindari blocking."""
-    return model.predict(frame, verbose=False, imgsz=256)
-
-
-# --- Stream Processor (Diperbarui untuk Performa) ---
+# ─────────────── 6. WebRTC Track ───────────────
 class RTSPVideoProcessor(VideoStreamTrack):
     kind = "video"
 
-    def __init__(self, rtsp_url, area_name, cctv_name):
+    def __init__(self, rtsp_url: str, area: str, cam: str):
         super().__init__()
-        self.capture = ThreadedVideoCapture(rtsp_url)
-        self.area_name = area_name
-        self.cctv_name = cctv_name
-        self.last_detection_time = 0
-        self.frame_count = 0
-        self.detection_cooldown = 10 
+        self.reader = ThreadedVideoCapture(rtsp_url)
+        self.area, self.cam = area, cam
 
     async def recv(self):
-        pts, time_base = await self.next_timestamp()
-        ret, frame = self.capture.read()
-        
-        if not ret:
-            blank_frame = av.VideoFrame(width=PROCESSING_WIDTH, height=PROCESSING_HEIGHT, format='rgb24')
-            blank_frame.pts = pts
-            blank_frame.time_base = time_base
-            await asyncio.sleep(0.01)
-            return blank_frame
+        pts, tbase = await self.next_timestamp()
+        ok, frame = self.reader.read()
+        if not ok:
+            blank = av.VideoFrame(width=640, height=360, format="rgb24")
+            blank.pts, blank.time_base = pts, tbase
+            await asyncio.sleep(0.02)
+            return blank
 
-        frame = cv2.resize(frame, (PROCESSING_WIDTH, PROCESSING_HEIGHT))
-        self.frame_count += 1
-        
-        # --- PERBAIKAN: Jalankan AI di thread terpisah (non-blocking) ---
-        if self.frame_count % FRAME_SKIP == 0:
-            loop = asyncio.get_running_loop()
-            results = await loop.run_in_executor(executor, run_model_prediction, frame.copy())
-            
-            now = time.time()
-            for r in results:
-                for box in r.boxes:
-                    x1, y1, x2, y2 = map(int, box.xyxy[0])
-                    class_id = int(box.cls[0])
-                    class_name = CLASS_NAMES[class_id]
-                    conf = float(box.conf[0])
+        stream = cv2.resize(frame, (640, 360))
 
-                    if 'smoking' in class_name.lower() and conf > 0.6:
-                        if now - self.last_detection_time > self.detection_cooldown:
-                            self.last_detection_time = now
-                            asyncio.create_task(self.save_detection(frame.copy(), conf))
+        if DETECTION_FRAME_QUEUE.empty():
+            await DETECTION_FRAME_QUEUE.put((frame.copy(), self.area, self.cam))
 
-                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                        cv2.putText(frame, f"{class_name.upper()} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-
-        img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        av_frame = av.VideoFrame.from_ndarray(img_rgb, format="rgb24")
-        av_frame.pts = pts
-        av_frame.time_base = time_base
-        return av_frame
-
-    async def save_detection(self, frame, confidence):
-        if not db or not bucket: return
-        try:
-            timestamp = datetime.now()
-            success, encoded = cv2.imencode(".jpg", frame)
-            if not success: return
-            img_bytes = encoded.tobytes()
-
-            filename = f"detections/{timestamp.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.jpg"
-            blob = bucket.blob(filename)
-            blob.upload_from_string(img_bytes, content_type="image/jpeg")
-            blob.make_public()
-
-            db.collection("detections").add({
-                "timestamp": timestamp,
-                "message": "Aktivitas merokok terdeteksi",
-                "imageUrl": blob.public_url,
-                "area": self.area_name,
-                "cctvName": self.cctv_name,
-                "confidence": confidence,
-            })
-            logger.info(f"Deteksi disimpan dari area {self.area_name}")
-        except Exception as e:
-            logger.error(f"Gagal menyimpan deteksi: {e}", exc_info=True)
+        v = av.VideoFrame.from_ndarray(cv2.cvtColor(stream, cv2.COLOR_BGR2RGB), format="rgb24")
+        v.pts, v.time_base = pts, tbase
+        return v
 
     def stop(self):
-        self.capture.release()
+        self.reader.release()
 
-# --- WebRTC Offer Route (Tidak ada perubahan) ---
-async def offer(request):
-    if not model or not db:
+# ─────────────── 7. Detection Worker ───────────────
+async def yolo_detection_worker():
+    while True:
+        frame, area, cam = await DETECTION_FRAME_QUEUE.get()
+        loop = asyncio.get_running_loop()
+        res = await loop.run_in_executor(EXECUTOR, run_yolo, frame)
+        now = time.time()
+
+        for r in res:
+            for b in r.boxes:
+                name = CLASS_NAMES[int(b.cls[0])].lower()
+                if any(t in name for t in ("smoking", "smoke", "cigarette", "rokok")) and float(b.conf[0]) > 0.3:
+                    await DETECTION_QUEUE.put((frame.copy(), float(b.conf[0]), area, cam))
+                    await asyncio.sleep(10)  # cooldown deteksi
+                    break
+
+async def save_violation_async(frame, conf: float, area: str, cam: str):
+    if not (supabase and db and model):
+        return
+    async with UPLOAD_SEMAPHORE:
+        for r in model(frame, imgsz=640, verbose=False):
+            for b in r.boxes:
+                name = CLASS_NAMES[int(b.cls[0])].lower()
+                if any(t in name for t in ("smoking", "smoke", "cigarette", "rokok")) and float(b.conf[0]) > 0.3:
+                    x1, y1, x2, y2 = map(int, b.xyxy[0])
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                    lbl = f"{name} {b.conf[0]:.2f}"
+                    cv2.putText(frame, lbl, (x1, max(0, y1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+        ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
+        if not ok:
+            return
+        fname = f"detections/{datetime.now():%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:8]}.jpg"
+        try:
+            supabase.storage.from_(BUCKET_NAME).upload(fname, buf.tobytes(), {"content-type": "image/jpeg"})
+            url = supabase.storage.from_(BUCKET_NAME).get_public_url(fname)
+            logger.info("✅ Uploaded: %s", url)
+            db.collection("detections").add({
+                "timestamp": firestore.SERVER_TIMESTAMP,
+                "message": "Telah deteksi merokok",
+                "imageUrl": url,
+                "area": area,
+                "cctvName": cam,
+                "confidence": conf,
+            })
+        except Exception as e:
+            logger.error("❌ Upload error: %s", e)
+
+async def detection_worker():
+    while True:
+        frame, conf, area, cam = await DETECTION_QUEUE.get()
+        await save_violation_async(frame, conf, area, cam)
+
+# ─────────────── 8. /offer Endpoint ───────────────
+async def offer(request: web.Request):
+    if not (model and db):
         return web.json_response({"error": "Backend not ready"}, status=503)
-    try:
-        data = await request.json()
-        for k in ["sdp", "type", "rtspUrl", "areaName", "cctvName"]:
-            if k not in data:
-                return web.json_response({"error": f"Missing {k}"}, status=400)
 
-        config = RTCConfiguration(iceServers=ICE_SERVERS)
-        pc = RTCPeerConnection(configuration=config)
-        pcs.add(pc)
+    data = await request.json()
+    for k in ("sdp", "type", "areaName", "cctvName"):
+        if k not in data:
+            return web.json_response({"error": f"Missing {k}"}, status=400)
 
-        @pc.on("connectionstatechange")
-        async def on_state_change():
-            logger.info(f"State changed: {pc.connectionState}")
-            if pc.connectionState in ["failed", "closed", "disconnected"]:
-                await pc.close()
-                pcs.discard(pc)
+    pc = RTCPeerConnection(RTCConfiguration(iceServers=ICE_SERVERS))
+    pc.addTrack(RTSPVideoProcessor(
+        "rtsp://admin:Rahmat27.@192.168.1.10:554/stream2",
+        data["areaName"], data["cctvName"])
+    )
 
-        processor = RTSPVideoProcessor(data["rtspUrl"], data["areaName"], data["cctvName"])
-        pc.addTrack(processor)
+    await pc.setRemoteDescription(RTCSessionDescription(data["sdp"], data["type"]))
+    answer = await pc.createAnswer()
+    await pc.setLocalDescription(answer)
+    return web.json_response({"sdp": pc.localDescription.sdp, "type": pc.localDescription.type})
 
-        await pc.setRemoteDescription(RTCSessionDescription(sdp=data["sdp"], type=data["type"]))
-        answer = await pc.createAnswer()
-        await pc.setLocalDescription(answer)
+# ─────────────── 9. App Factory ───────────────
+def create_app():
+    app = web.Application()
+    cors = aiohttp_cors.setup(app, defaults={
+        "*": aiohttp_cors.ResourceOptions(allow_credentials=True,
+                                          expose_headers="*",
+                                          allow_headers="*",
+                                          allow_methods="*")})
+    cors.add(app.router.add_post("/offer", offer))
+    app.on_startup.append(start_background_tasks)
+    app.on_cleanup.append(cleanup_background_tasks)
+    logger.info("🚀 Backend ready ▶ http://0.0.0.0:5050/offer")
+    return app
 
-        return web.json_response({"sdp": pc.localDescription.sdp, "type": pc.localDescription.type})
-    except Exception as e:
-        logger.error(f"Offer error: {e}", exc_info=True)
-        return web.json_response({"error": "Internal error"}, status=500)
+async def start_background_tasks(app):
+    app["detection_worker"] = asyncio.create_task(detection_worker())
+    app["yolo_worker"] = asyncio.create_task(yolo_detection_worker())
 
+async def cleanup_background_tasks(app):
+    app["detection_worker"].cancel()
+    app["yolo_worker"].cancel()
+    await asyncio.gather(app["detection_worker"], app["yolo_worker"], return_exceptions=True)
 
-# --- Run App (Tidak ada perubahan) ---
+# ─────────────── 10. main ───────────────
 if __name__ == "__main__":
-    if not model or not db:
-        logger.critical("Abort: model/db not ready")
-    else:
-        app = web.Application()
-        cors = aiohttp_cors.setup(app, defaults={
-            "*": aiohttp_cors.ResourceOptions(allow_credentials=True, expose_headers="*", allow_headers="*", allow_methods="*")
-        })
-        cors.add(app.router.add_post("/offer", offer))
-        logger.info("Starting server on http://0.0.0.0:5050")
-        web.run_app(app, host="0.0.0.0", port=5050)
+    web.run_app(create_app(), host="0.0.0.0", port=5050)

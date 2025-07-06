@@ -1,6 +1,18 @@
-flask==2.3.3
-firebase-admin==6.3.0
+# ───────── runtime utama ─────────
 aiohttp==3.9.3
+aiohttp-cors==0.7.0
+
+# WebRTC + multimedia  (aiortc mensyaratkan av < 11)
 aiortc==1.5.0
-av==11.0.0
-opencv-python-headless==4.9.0.80 
+av==10.0.0
+opencv-python-headless==4.9.0.80     # OpenCV tanpa GUI, cukup utk backend
+
+# YOLO (Ultralytics v8 – otomatis menarik torch, torchvision, dll)
+ultralytics==8.1.14
+
+# ───────── Supabase stack ────────
+supabase==2.16.0      # menarik gotrue≥2.12, httpx<0.29, storage3 0.12 … otomatis
+
+# ───────── Firestore  (karena app.py masih menulis ke Firebase) ────────
+firebase-admin==6.5.0   # versi stabil (menarik google‑cloud‑firestore 2.19.*)
+

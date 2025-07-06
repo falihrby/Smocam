@@ -19,6 +19,7 @@ import AccountPage from "./pages/AccountPage";
 import AddAccountPage from "./pages/AddAccountPage";
 import EditAccountPage from "./pages/EditAccountPage";
 import ViewAccountPage from "./pages/ViewAccountPage";
+import ViolationLetter from "./pages/ViolationLetter";
 import "./App.css";
 
 function App() {
@@ -160,6 +161,14 @@ function App() {
           element={
             <AuthGuard>
               <AreaPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/violation-letter/:id"
+          element={
+            <AuthGuard>
+              <ViolationLetter />
             </AuthGuard>
           }
         />
