@@ -1,0 +1,297 @@
+/* Menghilangkan margin bawaan browser agar tidak mengganggu capture PDF */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Kontainer utama untuk semua konten halaman (termasuk tombol) */
+.container {
+  padding: 20px;
+  background-color: #f0f2f5;
+}
+
+/* Tombol Download */
+.export-button {
+  background-color: #006699;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+/* Area yang membungkus surat untuk preview di layar */
+.pdf-render-area {
+  width: 8.27in; /* Lebar A4 */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Mengatur setiap halaman surat */
+.page {
+  background: white;
+  padding: 2cm; /* untuk preview */
+  width: 100%;
+  box-sizing: border-box;
+  color: #000;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 11.5pt;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ===================== */
+/* == GAYA KOP SURAT == */
+/* ===================== */
+.kop-surat {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 5px;
+}
+
+.kop-logo img {
+  width: 120px;
+  height: auto;
+}
+
+.kop-right {
+  flex: 1;
+  text-align: center;
+}
+
+.kop-title {
+  font-weight: bold;
+  font-size: 14pt;
+  line-height: 1.3;
+}
+
+.kop-contact {
+  font-size: 9pt;
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+.kop-contact span {
+  display: block;
+}
+
+.garis-pembatas {
+  border-top: 3px solid black;
+  border-bottom: 1px solid black;
+  margin-top: 2px;
+  margin-bottom: 15px;
+}
+
+/* ======================= */
+/* == ISI SURAT HALAMAN 1 */
+/* ======================= */
+
+.baris-info {
+  display: flex;
+  margin-bottom: 2px;
+}
+
+.label {
+  width: 60px;
+}
+
+.colon {
+  width: 10px;
+}
+
+.value {
+  flex: 1;
+}
+
+.info-surat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.info-kiri p,
+.info-kanan p {
+  margin: 0;
+}
+
+.penerima {
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.penerima p {
+  margin: 0;
+}
+
+.isi-surat ol {
+  margin: 0 0 0 20px;
+  padding-left: 20px;
+  text-align: justify;
+}
+
+.isi-surat > ol > li {
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
+
+.isi-surat ol li ol {
+  list-style-type: lower-alpha;
+  margin-top: 4px;
+}
+
+.isi-surat ol li ol li {
+  margin-bottom: 2px;
+}
+
+/* TANDA TANGAN HALAMAN 1 */
+.tanda-tangan-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.tanda-tangan {
+  text-align: left;
+  width: 55%;
+  line-height: 1.3;
+}
+
+.tanda-tangan p {
+  margin: 0;
+}
+
+.spasi-ttd {
+  height: 45px;
+}
+
+.nama-pejabat {
+  font-weight: bold;
+}
+
+/* TEMBUSAN */
+.tembusan {
+  margin-top: 15px;
+  font-size: 11pt;
+}
+
+.tembusan p {
+  margin-bottom: 4px;
+}
+
+.tembusan ol {
+  padding-left: 20px;
+  margin: 0;
+}
+
+/* ============================ */
+/* == GAYA LAMPIRAN HALAMAN 2 */
+/* ============================ */
+
+.lampiran-title {
+  text-align: center;
+  font-weight: bold;
+  text-decoration: underline;
+  margin-top: 25px;
+  margin-bottom: 30px;
+  font-size: 14pt;
+}
+
+.lampiran-section {
+  margin-bottom: 20px;
+}
+
+.lampiran-section > p {
+  margin-bottom: 10px;
+}
+
+.identitas-list {
+  margin-left: 20px;
+}
+
+.identitas-row {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.identitas-label {
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.identitas-colon {
+  width: 15px;
+  flex-shrink: 0;
+}
+
+.identitas-value {
+  flex-grow: 1;
+  border-bottom: 1px solid #ccc;
+}
+
+.ketentuan-list {
+  list-style-position: outside;
+  padding-left: 20px;
+  text-align: justify;
+}
+
+.ketentuan-list li {
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* FOTO PELANGGARAN */
+.foto-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.foto-item img {
+  border: 1px solid #ccc;
+  max-width: 100%;
+}
+
+/* TANDA TANGAN HALAMAN 2 */
+.lampiran-signature {
+  margin-top: 50px;
+  text-align: right;
+  width: 40%;
+  margin-left: auto;
+}
+
+.lampiran-signature p {
+  margin-bottom: 8px;
+}
+
+.signature-space {
+  height: 60px;
+}
+
+.signature-line {
+  border-bottom: 1px solid black;
+}
+
+@media print {
+  .page {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .kop-surat,
+  .lampiran-title,
+  .foto-container,
+  .tanda-tangan-container,
+  .lampiran-signature {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .page:nth-of-type(2) {
+    page-break-before: always;
+  }
+}
