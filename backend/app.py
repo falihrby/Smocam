@@ -61,32 +61,46 @@ def run_yolo(frame):
 class ThreadedVideoCapture:
     def __init__(self, url: str):
         self.url = url
-        self.cap = cv2.VideoCapture(url + "?rtsp_transport=tcp", cv2.CAP_FFMPEG)
-        if not self.cap.isOpened():
-            logger.warning("⚠️ Cannot open stream")
-
+        self.cap = None
         self.q = Queue(maxsize=10)
         self.run = True
         Thread(target=self._reader, daemon=True).start()
 
+    def _connect(self):
+        while self.run:
+            self.cap = cv2.VideoCapture(self.url + "?rtsp_transport=tcp", cv2.CAP_FFMPEG)
+            if self.cap.isOpened():
+                logger.info("✅ RTSP stream connected.")
+                break
+            else:
+                logger.warning("🔄 Retry connect RTSP...")
+                time.sleep(3)
+
     def _reader(self):
+        self._connect()
         while self.run:
             if not self.cap.isOpened():
-                time.sleep(1)
+                logger.warning("⚠️ Stream lost, reconnecting...")
+                self._connect()
                 continue
             ok, f = self.cap.read()
-            if ok and not self.q.full():
-                self.q.put(f)
+            if ok:
+                if not self.q.full():
+                    self.q.put(f)
             else:
-                time.sleep(0.01)
+                logger.warning("⚠️ Failed to read frame, retrying...")
+                time.sleep(1)
 
     def read(self):
-        try: return True, self.q.get(timeout=1)
-        except Empty: return False, None
+        try:
+            return True, self.q.get(timeout=1)
+        except Empty:
+            return False, None
 
     def release(self):
         self.run = False
-        self.cap.release()
+        if self.cap:
+            self.cap.release()
 
 # ─────────────── 6. WebRTC Track ───────────────
 class RTSPVideoProcessor(VideoStreamTrack):
@@ -183,7 +197,7 @@ async def offer(request: web.Request):
 
     pc = RTCPeerConnection(RTCConfiguration(iceServers=ICE_SERVERS))
     pc.addTrack(RTSPVideoProcessor(
-        "rtsp://admin:Rahmat27.@192.168.1.10:554/stream2",
+        "rtsp://admin:Smocam123.@192.168.239.24:554/stream2",
         data["areaName"], data["cctvName"])
     )
 
@@ -218,3 +232,4 @@ async def cleanup_background_tasks(app):
 # ─────────────── 10. main ───────────────
 if __name__ == "__main__":
     web.run_app(create_app(), host="0.0.0.0", port=5050)
+

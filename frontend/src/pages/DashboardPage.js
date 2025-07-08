@@ -149,7 +149,7 @@ const AreaSelectorAndStream = () => {
     const pcRef = useRef(null);
     const [isLoading, setIsLoading] = useState(false);
     const [streamError, setStreamError] = useState(null);
-    const backendUrl = 'http://192.168.1.8:5050/offer';
+    const backendUrl = "http://192.168.239.221:5050/offer";
 
     useEffect(() => {
         const unsub = onSnapshot(query(collection(db, "areas"), orderBy("areaName")), (snap) => {
